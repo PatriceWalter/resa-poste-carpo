@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réservation Carpodrome 2026</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group label .required {
+            color: #e53e3e;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+        
+        .month-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .month-selector { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        .month-btn {
+            padding: 15px 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .month-btn:hover {
+            border-color: #667eea;
+            background: #f7f8ff;
+        }
+        
+        .month-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .month-btn.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: #f5f5f5;
+        }
+        
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .days-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        
+        .day-btn {
+            padding: 12px 5px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .day-btn:hover:not(.disabled) {
+            border-color: #667eea;
+            background: #f7f8ff;
+        }
+        
+        .day-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .day-btn.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            background: #f5f5f5;
+        }
+        
+        .day-btn .day-name {
+            font-size: 10px;
+            color: #888;
+            display: block;
+        }
+        
+        .day-btn.active .day-name {
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .day-btn.ferme-matin {
+            border-color: #ffc107;
+            background: #fffbeb;
+        }
+        
+        .day-btn.ferme-matin::after {
+            content: "⚠️ Fermé matin";
+            display: block;
+            font-size: 9px;
+            color: #b45309;
+            margin-top: 3px;
+        }
+        
+        .postes-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .postes-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        
+        .poste-btn {
+            padding: 20px 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .poste-btn:hover:not(.disabled):not(.occupe) {
+            border-color: #28a745;
+            background: #f0fff4;
+        }
+        
+        .poste-btn.active {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        .poste-btn.occupe {
+            background: #fee2e2;
+            border-color: #dc3545;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+        
+        .poste-btn.occupe::after {
+            content: "Occupé";
+            display: block;
+            font-size: 10px;
+            color: #dc3545;
+            font-weight: normal;
+        }
+        
+        .poste-btn .poste-num {
+            display: block;
+        }
+        
+        .poste-btn.libre::after {
+            content: "Libre";
+            display: block;
+            font-size: 10px;
+            color: #28a745;
+            font-weight: normal;
+        }
+        
+        .binome-zone {
+            display: none;
+            background: #f0f9ff;
+            border: 2px solid #3182ce;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .binome-zone.visible {
+            display: block;
+        }
+        
+        .binome-zone h4 {
+            color: #3182ce;
+            margin-bottom: 10px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            margin-top: 3px;
+            cursor: pointer;
+        }
+        
+        .checkbox-group label {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.5;
+            cursor: pointer;
+        }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border: 2px solid #3182ce;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .info-box.warning {
+            background: #fffbeb;
+            border-color: #ffc107;
+        }
+        
+        .info-box.error {
+            background: #fee2e2;
+            border-color: #dc3545;
+        }
+        
+        .info-box.success {
+            background: #f0fff4;
+            border-color: #28a745;
+        }
+        
+        .info-box h4 {
+            margin-bottom: 5px;
+        }
+        
+        .selection-resume {
+            background: #f0fff4;
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .selection-resume h4 {
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+        
+        .selection-resume p {
+            margin: 5px 0;
+            color: #333;
+        }
+        
+        .selection-resume strong {
+            color: #667eea;
+        }
+        
+        .hidden { display: none !important; }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            color: white;
+            opacity: 0.5;
+        }
+        
+        .step.active {
+            opacity: 1;
+        }
+        
+        .step-num {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: white;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .step.active .step-num {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .step-line {
+            width: 50px;
+            height: 3px;
+            background: rgba(255,255,255,0.3);
+            margin: 0 15px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #e2e8f0;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            opacity: 0.8;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 100%;
+            overflow: hidden;
+            animation: modalIn 0.3s;
+        }
+        
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .modal-body {
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .modal-body .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .modal-body h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .modal-body p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .modal-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+        
+        .modal-btn.primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .modal-btn.primary:hover {
+            background: #5a6fd6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎣 Carpodrome 2026</h1>
+            <p>Réservation de poste de pêche</p>
+        </div>
+        
+        <!-- Steps Indicator -->
+        <div class="step-indicator">
+            <div class="step active" id="step1">
+                <span class="step-num">1</span>
+                <span>Date</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step" id="step2">
+                <span class="step-num">2</span>
+                <span>Poste</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step" id="step3">
+                <span class="step-num">3</span>
+                <span>Infos</span>
+            </div>
+        </div>
+        
+        <!-- Étape 1: Choix de la date -->
+        <div class="card" id="etape1">
+            <h2>📅 Étape 1 : Choisissez votre date</h2>
+            
+            <div class="info-box">
+                <h4>📌 Horaires d'ouverture</h4>
+                <p><strong>Du 1er mars au 4 mai :</strong> Samedis et Dimanches</p>
+                <p><strong>Du 5 mai au 30 octobre :</strong> Tous les jours</p>
+            </div>
+            
+            <label style="font-weight: 600; margin-bottom: 10px; display: block;">Sélectionnez un mois :</label>
+            <div class="month-selector" id="monthSelector"></div>
+            
+            <div id="daysContainer" class="hidden">
+                <label style="font-weight: 600; margin-bottom: 10px; display: block;">Sélectionnez un jour :</label>
+                <div class="days-grid" id="daysGrid"></div>
+            </div>
+        </div>
+        
+        <!-- Étape 2: Choix du poste -->
+        <div class="card hidden" id="etape2">
+            <h2>🎣 Étape 2 : Choisissez votre poste</h2>
+            
+            <div id="loadingPostes" class="loading">
+                <div class="loading-spinner"></div>
+                <p>Chargement des disponibilités...</p>
+            </div>
+            
+            <div id="postesContainer" class="hidden">
+                <div class="info-box" id="dateSelectedInfo"></div>
+                
+                <label style="font-weight: 600; margin-bottom: 10px; display: block;">Sélectionnez un poste libre :</label>
+                <div class="postes-grid" id="postesGrid"></div>
+                
+                <div class="form-group">
+                    <label>Créneau <span class="required">*</span></label>
+                    <select id="creneau" required>
+                        <option value="">-- Sélectionnez un créneau --</option>
+                        <option value="Le matin">🌅 Le matin</option>
+                        <option value="L'après midi">☀️ L'après midi</option>
+                        <option value="La journée">📅 La journée</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Mode de pêche <span class="required">*</span></label>
+                    <select id="modePeche" onchange="toggleBinome()">
+                        <option value="Individuel">👤 Individuel</option>
+                        <option value="Américaine">👥 Américaine (binôme)</option>
+                    </select>
+                </div>
+                
+                <div class="binome-zone" id="binomeZone">
+                    <h4>👥 Informations du binôme</h4>
+                    <div class="form-group">
+                        <label>Nom et prénom du binôme <span class="required">*</span></label>
+                        <input type="text" id="binomeNom" placeholder="Ex: DUPONT Jean">
+                    </div>
+                </div>
+                
+                <button class="btn-submit" onclick="goToStep3()" id="btnStep2">Continuer →</button>
+            </div>
+        </div>
+        
+        <!-- Étape 3: Informations personnelles -->
+        <div class="card hidden" id="etape3">
+            <h2>👤 Étape 3 : Vos informations</h2>
+            
+            <div class="selection-resume" id="selectionResume"></div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nom <span class="required">*</span></label>
+                    <input type="text" id="nom" placeholder="DUPONT" required style="text-transform: uppercase;">
+                </div>
+                <div class="form-group">
+                    <label>Prénom <span class="required">*</span></label>
+                    <input type="text" id="prenom" placeholder="Jean" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Adresse e-mail <span class="required">*</span></label>
+                <input type="email" id="email" placeholder="exemple@email.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Numéro de téléphone <span class="required">*</span></label>
+                <input type="tel" id="telephone" placeholder="06 12 34 56 78" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Adresse</label>
+                    <input type="text" id="adresse" placeholder="123 rue de la Pêche">
+                </div>
+                <div class="form-group">
+                    <label>Code postal</label>
+                    <input type="text" id="codePostal" placeholder="67000">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Ville</label>
+                <input type="text" id="ville" placeholder="Strasbourg">
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="reglement" required>
+                <label for="reglement">
+                    J'ai lu et j'accepte le <a href="#" target="_blank">règlement intérieur</a> du Carpodrome. 
+                    Je m'engage à respecter les règles de pêche et de bonne conduite sur le site. <span class="required">*</span>
+                </label>
+            </div>
+            
+            <button class="btn-submit" onclick="submitReservation()" id="btnSubmit">
+                ✅ Confirmer ma réservation
+            </button>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2026 Carpodrome - Tous droits réservés</p>
+        </div>
+    </div>
+    
+    <!-- Modal Succès -->
+    <div class="modal" id="modalSuccess">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Réservation envoyée !</h2>
+            </div>
+            <div class="modal-body">
+                <div class="icon">✅</div>
+                <h3>Merci pour votre réservation !</h3>
+                <p>Votre demande a bien été enregistrée.</p>
+                <p><strong>⚠️ Important :</strong> Votre réservation doit être validée par notre équipe.</p>
+                <p>Vous recevrez une confirmation par e-mail.</p>
+                <button class="modal-btn primary" onclick="resetForm()">Faire une nouvelle réservation</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Erreur -->
+    <div class="modal" id="modalError">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #dc3545;">
+                <h2>Erreur</h2>
+            </div>
+            <div class="modal-body">
+                <div class="icon">❌</div>
+                <h3 id="errorTitle">Une erreur est survenue</h3>
+                <p id="errorMessage">Veuillez réessayer ultérieurement.</p>
+                <button class="modal-btn primary" onclick="closeModal('modalError')">Fermer</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Banni -->
+    <div class="modal" id="modalBanni">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #dc3545;">
+                <h2>🚫 Réservation impossible</h2>
+            </div>
+            <div class="modal-body">
+                <div class="icon">🚫</div>
+                <h3>Vous ne pouvez pas réserver</h3>
+                <p>Votre accès au Carpodrome a été suspendu.</p>
+                <p>Veuillez contacter l'administration pour plus d'informations.</p>
+                <button class="modal-btn primary" onclick="closeModal('modalBanni')">Fermer</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =============================================
+        // CONFIGURATION
+        // =============================================
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyAQDfPFUMrEQGxgY8JRufTTjYT1HknQ31WXOaid0w6Qfy9UBsSP-_UVW3t3az-F_ZZGg/exec";
+        
+        // Jours d'ouverture (index 0-based: 2=mars, 3=avril, etc.)
+        const JOURS_OUVERTURE = {
+            2: [1, 7, 8, 14, 15, 21, 22, 28, 29],  // Mars
+            3: [11, 12, 18, 19, 25, 26],           // Avril
+            4: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],  // Mai
+            5: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],   // Juin
+            6: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], // Juillet
+            7: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], // Août
+            8: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],    // Septembre
+            9: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]     // Octobre
+        };
+        
+        const FERME_MATIN = { 2: [28], 3: [25], 5: [13], 8: [19], 9: [17] };
+        
+        const MOIS_NOMS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+        const JOURS_SEMAINE = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+        
+        // Variables de sélection
+        let selectedMonth = null;
+        let selectedDay = null;
+        let selectedPoste = null;
+        let selectedDateKey = null;
+        let selectedDateFull = null;
+        let reservationsData = {};
+        let bannisData = [];
+        
+        // =============================================
+        // INITIALISATION
+        // =============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMonths();
+            loadData();
+        });
+        
+        function loadData() {
+            // Charger les données depuis Google Sheet
+            const script = document.createElement('script');
+            script.src = GOOGLE_SCRIPT_URL + '?callback=handleData&t=' + Date.now();
+            document.body.appendChild(script);
+        }
+        
+        function handleData(data) {
+            if (data.status === 'success') {
+                // Stocker les réservations validées
+                if (data.reservations) {
+                    data.reservations.forEach(r => {
+                        if (!reservationsData[r.dateJour]) {
+                            reservationsData[r.dateJour] = {};
+                        }
+                        reservationsData[r.dateJour][r.poste] = r;
+                    });
+                }
+                
+                // Stocker les bannis
+                if (data.bannis) {
+                    bannisData = data.bannis;
+                }
+            }
+        }
+        
+        // =============================================
+        // ÉTAPE 1 : SÉLECTION DATE
+        // =============================================
+        function renderMonths() {
+            const container = document.getElementById('monthSelector');
+            container.innerHTML = '';
+            
+            MOIS_NOMS.forEach((nom, index) => {
+                const hasJours = JOURS_OUVERTURE[index] && JOURS_OUVERTURE[index].length > 0;
+                const btn = document.createElement('div');
+                btn.className = 'month-btn' + (hasJours ? '' : ' disabled');
+                btn.textContent = nom;
+                
+                if (hasJours) {
+                    btn.onclick = () => selectMonth(index, nom);
+                }
+                
+                container.appendChild(btn);
+            });
+        }
+        
+        function selectMonth(index, nom) {
+            selectedMonth = index;
+            selectedDay = null;
+            selectedPoste = null;
+            
+            // Mettre à jour l'UI
+            document.querySelectorAll('.month-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Afficher les jours
+            document.getElementById('daysContainer').classList.remove('hidden');
+            renderDays(index);
+        }
+        
+        function renderDays(monthIndex) {
+            const container = document.getElementById('daysGrid');
+            container.innerHTML = '';
+            
+            const jours = JOURS_OUVERTURE[monthIndex] || [];
+            const fermeMatin = FERME_MATIN[monthIndex] || [];
+            
+            jours.forEach(jour => {
+                const date = new Date(2026, monthIndex, jour);
+                const jourSemaine = JOURS_SEMAINE[date.getDay()];
+                const isFermeMatin = fermeMatin.includes(jour);
+                
+                const btn = document.createElement('div');
+                btn.className = 'day-btn' + (isFermeMatin ? ' ferme-matin' : '');
+                btn.innerHTML = `<span class="day-name">${jourSemaine}</span><strong>${jour}</strong>`;
+                btn.onclick = () => selectDay(jour, monthIndex);
+                
+                container.appendChild(btn);
+            });
+        }
+        
+        function selectDay(jour, monthIndex) {
+            selectedDay = jour;
+            selectedPoste = null;
+            
+            // Construire la clé de date
+            selectedDateKey = `2026-${String(monthIndex + 1).padStart(2, '0')}-${String(jour).padStart(2, '0')}`;
+            const date = new Date(2026, monthIndex, jour);
+            selectedDateFull = date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            
+            // Mettre à jour l'UI
+            document.querySelectorAll('.day-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.day-btn').classList.add('active');
+            
+            // Passer à l'étape 2
+            goToStep2();
+        }
+        
+        // =============================================
+        // ÉTAPE 2 : SÉLECTION POSTE
+        // =============================================
+        function goToStep2() {
+            document.getElementById('etape2').classList.remove('hidden');
+            document.getElementById('step2').classList.add('active');
+            
+            // Afficher le loading
+            document.getElementById('loadingPostes').classList.remove('hidden');
+            document.getElementById('postesContainer').classList.add('hidden');
+            
+            // Recharger les données pour avoir les dernières réservations
+            const script = document.createElement('script');
+            script.src = GOOGLE_SCRIPT_URL + '?callback=handleDataAndShowPostes&t=' + Date.now();
+            document.body.appendChild(script);
+            
+            // Scroll vers l'étape 2
+            document.getElementById('etape2').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function handleDataAndShowPostes(data) {
+            if (data.status === 'success') {
+                reservationsData = {};
+                if (data.reservations) {
+                    data.reservations.forEach(r => {
+                        if (!reservationsData[r.dateJour]) {
+                            reservationsData[r.dateJour] = {};
+                        }
+                        reservationsData[r.dateJour][r.poste] = r;
+                    });
+                }
+                
+                if (data.bannis) {
+                    bannisData = data.bannis;
+                }
+            }
+            
+            renderPostes();
+        }
+        
+        function renderPostes() {
+            // Cacher le loading, afficher les postes
+            document.getElementById('loadingPostes').classList.add('hidden');
+            document.getElementById('postesContainer').classList.remove('hidden');
+            
+            // Afficher la date sélectionnée
+            const fermeMatin = FERME_MATIN[selectedMonth] && FERME_MATIN[selectedMonth].includes(selectedDay);
+            let infoHtml = `<h4>📅 ${selectedDateFull}</h4>`;
+            if (fermeMatin) {
+                infoHtml += `<p style="color: #b45309; margin-top: 5px;">⚠️ Fermé le matin - Réservation possible uniquement l'après-midi ou la journée</p>`;
+            }
+            document.getElementById('dateSelectedInfo').innerHTML = infoHtml;
+            
+            // Si fermé le matin, masquer l'option matin
+            const creneauSelect = document.getElementById('creneau');
+            const matinOption = creneauSelect.querySelector('option[value="Le matin"]');
+            if (fermeMatin) {
+                matinOption.disabled = true;
+                matinOption.textContent = "🌅 Le matin (Fermé)";
+            } else {
+                matinOption.disabled = false;
+                matinOption.textContent = "🌅 Le matin";
+            }
+            
+            // Afficher les postes
+            const container = document.getElementById('postesGrid');
+            container.innerHTML = '';
+            
+            const dayReservations = reservationsData[selectedDateKey] || {};
+            
+            for (let i = 1; i <= 14; i++) {
+                const isOccupe = dayReservations[i] && dayReservations[i].nom;
+                
+                const btn = document.createElement('div');
+                btn.className = 'poste-btn' + (isOccupe ? ' occupe' : ' libre');
+                btn.innerHTML = `<span class="poste-num">Poste ${i}</span>`;
+                
+                if (!isOccupe) {
+                    btn.onclick = () => selectPoste(i);
+                }
+                
+                container.appendChild(btn);
+            }
+        }
+        
+        function selectPoste(num) {
+            selectedPoste = num;
+            
+            // Mettre à jour l'UI
+            document.querySelectorAll('.poste-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.poste-btn').classList.add('active');
+        }
+        
+        function toggleBinome() {
+            const mode = document.getElementById('modePeche').value;
+            const binomeZone = document.getElementById('binomeZone');
+            
+            if (mode === 'Américaine') {
+                binomeZone.classList.add('visible');
+            } else {
+                binomeZone.classList.remove('visible');
+            }
+        }
+        
+        // =============================================
+        // ÉTAPE 3 : INFORMATIONS
+        // =============================================
+        function goToStep3() {
+            // Vérifications
+            if (!selectedPoste) {
+                alert('Veuillez sélectionner un poste.');
+                return;
+            }
+            
+            const creneau = document.getElementById('creneau').value;
+            if (!creneau) {
+                alert('Veuillez sélectionner un créneau.');
+                return;
+            }
+            
+            const mode = document.getElementById('modePeche').value;
+            if (mode === 'Américaine') {
+                const binome = document.getElementById('binomeNom').value.trim();
+                if (!binome) {
+                    alert('Veuillez entrer le nom du binôme.');
+                    return;
+                }
+            }
+            
+            // Afficher le résumé
+            const resume = document.getElementById('selectionResume');
+            let html = `<h4>📋 Récapitulatif de votre réservation</h4>`;
+            html += `<p>📅 Date : <strong>${selectedDateFull}</strong></p>`;
+            html += `<p>🎣 Poste : <strong>Poste ${selectedPoste}</strong></p>`;
+            html += `<p>⏰ Créneau : <strong>${creneau}</strong></p>`;
+            html += `<p>👤 Mode : <strong>${mode}</strong></p>`;
+            
+            if (mode === 'Américaine') {
+                html += `<p>👥 Binôme : <strong>${document.getElementById('binomeNom').value}</strong></p>`;
+            }
+            
+            resume.innerHTML = html;
+            
+            // Passer à l'étape 3
+            document.getElementById('etape3').classList.remove('hidden');
+            document.getElementById('step3').classList.add('active');
+            document.getElementById('etape3').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // =============================================
+        // SOUMISSION
+        // =============================================
+        function submitReservation() {
+            // Vérifications
+            const nom = document.getElementById('nom').value.trim().toUpperCase();
+            const prenom = document.getElementById('prenom').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const telephone = document.getElementById('telephone').value.trim();
+            const reglement = document.getElementById('reglement').checked;
+            
+            if (!nom || !prenom || !email || !telephone) {
+                alert('Veuillez remplir tous les champs obligatoires.');
+                return;
+            }
+            
+            if (!reglement) {
+                alert('Veuillez accepter le règlement intérieur.');
+                return;
+            }
+            
+            // Vérifier si banni
+            const isBanni = bannisData.some(b => 
+                b.nom && b.nom.toUpperCase() === nom && 
+                b.prenom && b.prenom.toLowerCase() === prenom.toLowerCase()
+            );
+            
+            if (isBanni) {
+                document.getElementById('modalBanni').classList.add('active');
+                return;
+            }
+            
+            // Désactiver le bouton
+            const btn = document.getElementById('btnSubmit');
+            btn.disabled = true;
+            btn.textContent = '⏳ Envoi en cours...';
+            
+            // Préparer les données
+            const creneau = document.getElementById('creneau').value;
+            const mode = document.getElementById('modePeche').value;
+            const binome = mode === 'Américaine' ? document.getElementById('binomeNom').value.trim() : '';
+            
+            // Format de date pour le Sheet
+            const dateParts = selectedDateKey.split('-');
+            const dateFormatted = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+            
+            const data = {
+                type: "reservation",
+                horodateur: new Date().toLocaleString('fr-FR'),
+                email: email,
+                nomPrenom: nom + ' ' + prenom,
+                adresse: document.getElementById('adresse').value.trim(),
+                codePostal: document.getElementById('codePostal').value.trim(),
+                ville: document.getElementById('ville').value.trim(),
+                telephone: telephone,
+                dateReservation: dateFormatted,
+                poste: "Poste " + selectedPoste,
+                creneau: creneau,
+                mode: mode,
+                binome: binome,
+                reglement: "Oui"
+            };
+            
+            // Envoyer au Google Sheet
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(() => {
+                // Afficher le modal de succès
+                document.getElementById('modalSuccess').classList.add('active');
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                document.getElementById('errorMessage').textContent = error.message || 'Une erreur est survenue.';
+                document.getElementById('modalError').classList.add('active');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.textContent = '✅ Confirmer ma réservation';
+            });
+        }
+        
+        // =============================================
+        // UTILITAIRES
+        // =============================================
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        
+        function resetForm() {
+            closeModal('modalSuccess');
+            
+            // Reset toutes les sélections
+            selectedMonth = null;
+            selectedDay = null;
+            selectedPoste = null;
+            selectedDateKey = null;
+            selectedDateFull = null;
+            
+            // Reset les formulaires
+            document.querySelectorAll('.month-btn, .day-btn, .poste-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('daysContainer').classList.add('hidden');
+            document.getElementById('etape2').classList.add('hidden');
+            document.getElementById('etape3').classList.add('hidden');
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step3').classList.remove('active');
+            
+            // Reset les champs
+            document.getElementById('creneau').value = '';
+            document.getElementById('modePeche').value = 'Individuel';
+            document.getElementById('binomeNom').value = '';
+            document.getElementById('binomeZone').classList.remove('visible');
+            document.getElementById('nom').value = '';
+            document.getElementById('prenom').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('telephone').value = '';
+            document.getElementById('adresse').value = '';
+            document.getElementById('codePostal').value = '';
+            document.getElementById('ville').value = '';
+            document.getElementById('reglement').checked = false;
+            
+            // Scroll en haut
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Recharger les données
+            loadData();
+        }
+    </script>
+</body>
+</html>
