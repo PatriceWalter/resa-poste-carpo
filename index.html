@@ -679,6 +679,15 @@
             <div id="postesContainer" class="hidden">
                 <div class="info-box" id="dateSelectedInfo"></div>
                 
+                <!-- Plan du Carpodrome -->
+                <div style="margin-bottom: 20px;">
+                    <label style="font-weight: 600; margin-bottom: 10px; display: block;">📍 Plan du Carpodrome :</label>
+                    <div style="text-align: center; background: #f8f9fa; padding: 15px; border-radius: 10px; border: 2px solid #e2e8f0;">
+                        <img src="plan_carpodrome_numeros.jpg" alt="Plan du Carpodrome avec les postes numérotés" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); cursor: pointer;" onclick="document.getElementById('modalPlan').classList.add('active')">
+                        <p style="margin-top: 10px; font-size: 0.9em; color: #666;">👆 Cliquez sur l'image pour l'agrandir</p>
+                    </div>
+                </div>
+                
                 <label style="font-weight: 600; margin-bottom: 10px; display: block;">Sélectionnez un poste libre :</label>
                 <div class="postes-grid" id="postesGrid"></div>
                 
@@ -931,6 +940,14 @@
                 <p>Veuillez contacter l'administration pour plus d'informations.</p>
                 <button class="modal-btn primary" onclick="closeModal('modalBanni')">Fermer</button>
             </div>
+        </div>
+    </div>
+    
+    <!-- Modal Image Plan -->
+    <div class="modal" id="modalPlan" onclick="closeModal('modalPlan')">
+        <div style="max-width: 95%; max-height: 95%; position: relative;">
+            <img src="plan_carpodrome_numeros.jpg" alt="Plan du Carpodrome" style="max-width: 100%; max-height: 90vh; border-radius: 10px; box-shadow: 0 10px 50px rgba(0,0,0,0.5);">
+            <button onclick="closeModal('modalPlan')" style="position: absolute; top: -15px; right: -15px; width: 40px; height: 40px; border-radius: 50%; background: white; border: none; font-size: 20px; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">✕</button>
         </div>
     </div>
 
