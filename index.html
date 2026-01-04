@@ -686,7 +686,10 @@
                 <p>Votre demande a bien été enregistrée.</p>
                 <p><strong>⚠️ Important :</strong> Votre réservation doit être validée par notre équipe.</p>
                 <p>Vous recevrez une confirmation par SMS.</p>
-                <button class="modal-btn primary" onclick="resetForm()">Faire une nouvelle réservation</button>
+                <div style="display: flex; gap: 15px; justify-content: center; margin-top: 25px;">
+                    <button class="modal-btn primary" onclick="resetForm()">🔄 Nouvelle réservation</button>
+                    <button class="modal-btn" onclick="window.close(); closeModal('modalSuccess');" style="background: #6c757d; color: white;">✖ Fermer</button>
+                </div>
             </div>
         </div>
     </div>
