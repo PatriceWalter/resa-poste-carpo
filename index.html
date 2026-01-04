@@ -274,6 +274,96 @@
             margin-bottom: 10px;
         }
         
+        /* RÈGLEMENT SCROLLABLE */
+        .reglement-container {
+            margin: 20px 0;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .reglement-header {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .reglement-scroll {
+            height: 400px;
+            overflow-y: scroll;
+            padding: 20px;
+            background: #f8f9fa;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .reglement-scroll h3 {
+            color: #667eea;
+            margin: 20px 0 10px 0;
+            font-size: 1.1em;
+        }
+        
+        .reglement-scroll h3:first-child {
+            margin-top: 0;
+        }
+        
+        .reglement-scroll ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .reglement-scroll li {
+            margin-bottom: 5px;
+        }
+        
+        .reglement-scroll .interdit {
+            color: #dc3545;
+        }
+        
+        .reglement-scroll .important {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #ffc107;
+            margin: 10px 0;
+        }
+        
+        .reglement-scroll .contact-box {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .reglement-progress {
+            background: #e2e8f0;
+            height: 8px;
+            border-radius: 4px;
+            margin: 10px 20px;
+            overflow: hidden;
+        }
+        
+        .reglement-progress-bar {
+            background: #667eea;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .reglement-status {
+            text-align: center;
+            padding: 10px;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .reglement-status.complete {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
         .checkbox-group {
             display: flex;
             align-items: flex-start;
@@ -284,11 +374,19 @@
             border-radius: 10px;
         }
         
+        .checkbox-group.disabled {
+            opacity: 0.5;
+        }
+        
         .checkbox-group input[type="checkbox"] {
             width: 22px;
             height: 22px;
             margin-top: 3px;
             cursor: pointer;
+        }
+        
+        .checkbox-group input[type="checkbox"]:disabled {
+            cursor: not-allowed;
         }
         
         .checkbox-group label {
@@ -554,8 +652,10 @@
             
             <div class="info-box">
                 <h4>📌 Horaires d'ouverture</h4>
-                <p><strong>Du 1er mars au 4 mai :</strong> Samedis et Dimanches</p>
+                <p><strong>Du 1er mars au 4 mai :</strong> Samedis, Dimanches et jours fériés</p>
                 <p><strong>Du 5 mai au 30 octobre :</strong> Tous les jours</p>
+                <p style="margin-top: 10px; font-size: 0.9em;">• Pêche de 8h à 19h (mars-avril et septembre-octobre)</p>
+                <p style="font-size: 0.9em;">• Pêche de 8h à 20h (mai à août)</p>
             </div>
             
             <label style="font-weight: 600; margin-bottom: 10px; display: block;">Sélectionnez un mois :</label>
@@ -630,8 +730,19 @@
             </div>
             
             <div class="form-group">
-                <label>Adresse e-mail <span class="required">*</span></label>
-                <input type="email" id="email" placeholder="exemple@email.com" required>
+                <label>Adresse <span class="required">*</span></label>
+                <input type="text" id="adresse" placeholder="123 rue de la Pêche" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Code postal <span class="required">*</span></label>
+                    <input type="text" id="codePostal" placeholder="67000" required>
+                </div>
+                <div class="form-group">
+                    <label>Ville <span class="required">*</span></label>
+                    <input type="text" id="ville" placeholder="Strasbourg" required>
+                </div>
             </div>
             
             <div class="form-group">
@@ -639,38 +750,136 @@
                 <input type="tel" id="telephone" placeholder="06 12 34 56 78" required>
             </div>
             
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Adresse</label>
-                    <input type="text" id="adresse" placeholder="123 rue de la Pêche">
-                </div>
-                <div class="form-group">
-                    <label>Code postal</label>
-                    <input type="text" id="codePostal" placeholder="67000">
-                </div>
-            </div>
-            
             <div class="form-group">
-                <label>Ville</label>
-                <input type="text" id="ville" placeholder="Strasbourg">
+                <label>Adresse e-mail <span class="required">*</span></label>
+                <input type="email" id="email" placeholder="exemple@email.com" required>
             </div>
             
-            <div class="checkbox-group">
-                <input type="checkbox" id="reglement" required>
+            <!-- RÈGLEMENT COMPLET -->
+            <div class="reglement-container">
+                <div class="reglement-header">📜 RÈGLEMENT DU CARPODROME 2026 - À LIRE OBLIGATOIREMENT</div>
+                <div class="reglement-scroll" id="reglementScroll" onscroll="checkReglementScroll()">
+                    
+                    <h3>🗓️ PÉRIODES ET HORAIRES D'OUVERTURE</h3>
+                    <p>Les horaires de pêche : 30 minutes avant le lever du soleil → 30 minutes après le coucher</p>
+                    <ul>
+                        <li>Sur réservation uniquement et 24h à l'avance</li>
+                        <li>Du 1er mars au 4 mai : samedis, dimanches et jours fériés</li>
+                        <li>Du 5 mai au 30 octobre : tous les jours</li>
+                        <li>Pêche de 8h à 19h - Période de mars à avril et période de septembre à fin octobre</li>
+                        <li>Pêche de 8h à 20h - Période de mai à fin août</li>
+                    </ul>
+                    <p class="important">⚠️ L'AAPPMA peut à tout moment fermer les étangs pour cause d'événements indépendants de notre volonté (manque d'eau, cyanobactéries, etc…)</p>
+                    
+                    <h3>🎫 RÉSERVATION ET TARIFS</h3>
+                    <ul>
+                        <li>Carte journalière : 10 € / Titulaires de la carte annuelle : 5 €</li>
+                        <li>Carte demi-journée : 6 € / Titulaires de la carte annuelle : 3 €</li>
+                        <li>Jours d'événements : pêche payante pour tous (10 €)</li>
+                        <li>Réservation obligatoire 24h avant via formulaire en ligne</li>
+                    </ul>
+                    <p class="important">⚠️ Il est impératif que chaque pêcheur dispose de la somme exacte pour l'achat d'une carte. L'association ne peut assurer la disponibilité de monnaie.</p>
+                    
+                    <h3>🎣 MODALITÉS DE PÊCHE</h3>
+                    <ul>
+                        <li><strong>Pêche No Kill obligatoire</strong></li>
+                        <li>Canne au coup uniquement, longueur max : 13 m</li>
+                        <li>1 ligne par pêcheur</li>
+                        <li>Max 2 pêcheurs par poste (à préciser lors de la réservation)</li>
+                        <li>Pêche sous la canne, dans la zone du poste réservé</li>
+                        <li>Amorçage : uniquement à la coupelle ou fronde</li>
+                        <li>Matériel obligatoire : bassine ou tapis de réception épais avec rebord (5cm mini) pour les carpes de plus de 5kg</li>
+                        <li>Hameçon sans ardillon, taille max nº10 (pincé/limé interdit)</li>
+                        <li>Bourriche autorisée pour poisson blanc uniquement</li>
+                        <li>Carpes et tanches : relâchées immédiatement</li>
+                        <li>Esches autorisées : végétales, vers de terre, asticots</li>
+                        <li>Pellets et baby corn autorisés</li>
+                        <li>Graines cuites obligatoirement</li>
+                        <li>Kit de soins conseillé</li>
+                    </ul>
+                    
+                    <h3>👶 PÊCHE DES MINEURS</h3>
+                    <ul>
+                        <li>Autorisée à partir de 12 ans, en journée uniquement</li>
+                        <li>Moins de 12 ans : accompagnement obligatoire (sous responsabilité parentale)</li>
+                    </ul>
+                    
+                    <h3>👮 CONTRÔLES ET SANCTIONS</h3>
+                    <ul>
+                        <li>Carte de pêche à présenter</li>
+                        <li>Contrôles réguliers et imprévus</li>
+                    </ul>
+                    <p><strong>Sanctions :</strong></p>
+                    <ul>
+                        <li>1ère infraction → avertissement</li>
+                        <li>2ème infraction → exclusion temporaire ou définitive</li>
+                        <li>Aucun remboursement en cas d'exclusion</li>
+                    </ul>
+                    
+                    <h3>⛔ INTERDICTIONS</h3>
+                    <ul class="interdit">
+                        <li>❌ Feux au sol et barbecues</li>
+                        <li>❌ Pêche de nuit</li>
+                        <li>❌ Camping (seuls parapluies autorisés)</li>
+                        <li>❌ Baignade, canotage</li>
+                        <li>❌ Mutilation ou marquage des poissons</li>
+                        <li>❌ Faire pêcher une autre personne qui n'a pas réservé le poste</li>
+                        <li>❌ Franglaise, Feeder</li>
+                        <li>❌ Poisson posé au sol ou tenu avec un chiffon</li>
+                        <li>❌ Graines crues</li>
+                        <li>❌ Pêche au pain</li>
+                        <li>❌ Hameçons avec ardillons</li>
+                        <li>❌ Pêche en surface</li>
+                    </ul>
+                    
+                    <h3>🗑️ GESTION DES DÉCHETS</h3>
+                    <ul>
+                        <li>Ramener ses déchets</li>
+                        <li>Amende possible : 150 € (art. 632-1 du code pénal)</li>
+                    </ul>
+                    
+                    <h3>🤝 UN COUP DE MAIN, UNE RÉCOMPENSE !</h3>
+                    <p>Tu donnes de ton temps pour une journée de travail avec l'AAPPMA ?</p>
+                    <p>👉 En remerciement, tu gagnes 2 jours de pêche gratuite soit au carpodrome, aux étangs concours, ou nuit de pêche à la Hardt (après réservation). Valable pendant le mois de ta participation.</p>
+                    <p><em>Parce qu'ensemble, on fait vivre nos étangs et l'AAPPMA.</em></p>
+                    
+                    <div class="contact-box">
+                        <h3>📞 CONTACTS UTILES</h3>
+                        <ul>
+                            <li><strong>Président :</strong> René Rahm – 06.50.76.59.34</li>
+                            <li><strong>Problème sur réservations :</strong> Patrice Walter – 06.37.70.37.31</li>
+                            <li><strong>Garde pêche :</strong> Raymond Ledig – 06.95.24.90.84 / gpp67110@free.fr</li>
+                        </ul>
+                        <p style="margin-top: 15px;">🌐 <strong>Site internet :</strong> <a href="https://www.aappma-gundershoffen.fr" target="_blank">www.aappma-gundershoffen.fr</a></p>
+                        <p>📧 <strong>Email :</strong> gundershoffenaappma@gmail.com</p>
+                    </div>
+                    
+                    <div style="height: 50px;"></div>
+                    <p style="text-align: center; font-weight: bold; color: #28a745;">✅ Vous avez lu l'intégralité du règlement</p>
+                    <div style="height: 20px;"></div>
+                </div>
+                <div class="reglement-progress">
+                    <div class="reglement-progress-bar" id="progressBar"></div>
+                </div>
+                <div class="reglement-status" id="reglementStatus">⬇️ Faites défiler pour lire le règlement complet</div>
+            </div>
+            
+            <div class="checkbox-group disabled" id="checkboxGroup">
+                <input type="checkbox" id="reglement" required disabled>
                 <label for="reglement">
-                    J'ai lu et j'accepte le <a href="#" target="_blank">règlement intérieur</a> du Carpodrome. 
+                    J'ai lu et j'accepte le règlement intérieur du Carpodrome. 
                     Je m'engage à respecter les règles de pêche et de bonne conduite sur le site. <span class="required">*</span>
                 </label>
             </div>
             
-            <button class="btn-submit" onclick="submitReservation()" id="btnSubmit">
+            <button class="btn-submit" onclick="submitReservation()" id="btnSubmit" disabled>
                 ✅ Confirmer ma réservation
             </button>
         </div>
         
         <!-- Footer -->
         <div class="footer">
-            <p>© 2026 Carpodrome - Tous droits réservés</p>
+            <p>© 2026 Carpodrome AAPPMA Gundershoffen - Tous droits réservés</p>
         </div>
     </div>
     
@@ -756,6 +965,7 @@
         let selectedDateFull = null;
         let reservationsData = {};
         let bannisData = [];
+        let reglementLu = false;
         
         // =============================================
         // INITIALISATION
@@ -766,7 +976,6 @@
         });
         
         function loadData() {
-            // Charger les données depuis Google Sheet
             const script = document.createElement('script');
             script.src = GOOGLE_SCRIPT_URL + '?callback=handleData&t=' + Date.now();
             document.body.appendChild(script);
@@ -774,7 +983,6 @@
         
         function handleData(data) {
             if (data.status === 'success') {
-                // Stocker les réservations validées
                 if (data.reservations) {
                     data.reservations.forEach(r => {
                         if (!reservationsData[r.dateJour]) {
@@ -784,12 +992,42 @@
                     });
                 }
                 
-                // Stocker les bannis
                 if (data.bannis) {
                     bannisData = data.bannis;
                 }
             }
         }
+        
+        // =============================================
+        // VÉRIFICATION SCROLL RÈGLEMENT
+        // =============================================
+        function checkReglementScroll() {
+            const scrollBox = document.getElementById('reglementScroll');
+            const progressBar = document.getElementById('progressBar');
+            const status = document.getElementById('reglementStatus');
+            const checkboxGroup = document.getElementById('checkboxGroup');
+            const checkbox = document.getElementById('reglement');
+            const btnSubmit = document.getElementById('btnSubmit');
+            
+            const scrollPercent = (scrollBox.scrollTop / (scrollBox.scrollHeight - scrollBox.clientHeight)) * 100;
+            progressBar.style.width = Math.min(scrollPercent, 100) + '%';
+            
+            // Si scrollé à plus de 95%, débloquer la checkbox
+            if (scrollPercent >= 95) {
+                reglementLu = true;
+                checkboxGroup.classList.remove('disabled');
+                checkbox.disabled = false;
+                status.textContent = '✅ Règlement lu - Vous pouvez maintenant cocher la case ci-dessous';
+                status.classList.add('complete');
+            }
+        }
+        
+        // Activer/désactiver le bouton selon la checkbox
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('reglement').addEventListener('change', function() {
+                document.getElementById('btnSubmit').disabled = !this.checked;
+            });
+        });
         
         // =============================================
         // ÉTAPE 1 : SÉLECTION DATE
@@ -817,11 +1055,9 @@
             selectedDay = null;
             selectedPoste = null;
             
-            // Mettre à jour l'UI
             document.querySelectorAll('.month-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             
-            // Afficher les jours
             document.getElementById('daysContainer').classList.remove('hidden');
             renderDays(index);
         }
@@ -851,16 +1087,13 @@
             selectedDay = jour;
             selectedPoste = null;
             
-            // Construire la clé de date
             selectedDateKey = `2026-${String(monthIndex + 1).padStart(2, '0')}-${String(jour).padStart(2, '0')}`;
             const date = new Date(2026, monthIndex, jour);
             selectedDateFull = date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
             
-            // Mettre à jour l'UI
             document.querySelectorAll('.day-btn').forEach(btn => btn.classList.remove('active'));
             event.target.closest('.day-btn').classList.add('active');
             
-            // Passer à l'étape 2
             goToStep2();
         }
         
@@ -871,16 +1104,13 @@
             document.getElementById('etape2').classList.remove('hidden');
             document.getElementById('step2').classList.add('active');
             
-            // Afficher le loading
             document.getElementById('loadingPostes').classList.remove('hidden');
             document.getElementById('postesContainer').classList.add('hidden');
             
-            // Recharger les données pour avoir les dernières réservations
             const script = document.createElement('script');
             script.src = GOOGLE_SCRIPT_URL + '?callback=handleDataAndShowPostes&t=' + Date.now();
             document.body.appendChild(script);
             
-            // Scroll vers l'étape 2
             document.getElementById('etape2').scrollIntoView({ behavior: 'smooth' });
         }
         
@@ -905,19 +1135,16 @@
         }
         
         function renderPostes() {
-            // Cacher le loading, afficher les postes
             document.getElementById('loadingPostes').classList.add('hidden');
             document.getElementById('postesContainer').classList.remove('hidden');
             
-            // Afficher la date sélectionnée
             const fermeMatin = FERME_MATIN[selectedMonth] && FERME_MATIN[selectedMonth].includes(selectedDay);
             let infoHtml = `<h4>📅 ${selectedDateFull}</h4>`;
             if (fermeMatin) {
-                infoHtml += `<p style="color: #b45309; margin-top: 5px;">⚠️ Fermé le matin - Réservation possible uniquement l'après-midi ou la journée</p>`;
+                infoHtml += `<p style="color: #b45309; margin-top: 5px;">⚠️ Fermé le matin - Réservation possible uniquement l'après-midi</p>`;
             }
             document.getElementById('dateSelectedInfo').innerHTML = infoHtml;
             
-            // Si fermé le matin, masquer l'option matin ET journée
             const creneauSelect = document.getElementById('creneau');
             const matinOption = creneauSelect.querySelector('option[value="Le matin"]');
             const journeeOption = creneauSelect.querySelector('option[value="La journée"]');
@@ -927,7 +1154,6 @@
                 matinOption.textContent = "🌅 Le matin (Fermé)";
                 journeeOption.disabled = true;
                 journeeOption.textContent = "📅 La journée (Fermé le matin)";
-                // Sélectionner automatiquement l'après-midi
                 creneauSelect.value = "L'après midi";
             } else {
                 matinOption.disabled = false;
@@ -937,7 +1163,6 @@
                 creneauSelect.value = "";
             }
             
-            // Afficher les postes
             const container = document.getElementById('postesGrid');
             container.innerHTML = '';
             
@@ -961,7 +1186,6 @@
         function selectPoste(num) {
             selectedPoste = num;
             
-            // Mettre à jour l'UI
             document.querySelectorAll('.poste-btn').forEach(btn => btn.classList.remove('active'));
             event.target.closest('.poste-btn').classList.add('active');
         }
@@ -981,7 +1205,6 @@
         // ÉTAPE 3 : INFORMATIONS
         // =============================================
         function goToStep3() {
-            // Vérifications
             if (!selectedPoste) {
                 alert('Veuillez sélectionner un poste.');
                 return;
@@ -1002,7 +1225,6 @@
                 }
             }
             
-            // Afficher le résumé
             const resume = document.getElementById('selectionResume');
             let html = `<h4>📋 Récapitulatif de votre réservation</h4>`;
             html += `<p>📅 Date : <strong>${selectedDateFull}</strong></p>`;
@@ -1016,7 +1238,6 @@
             
             resume.innerHTML = html;
             
-            // Passer à l'étape 3
             document.getElementById('etape3').classList.remove('hidden');
             document.getElementById('step3').classList.add('active');
             document.getElementById('etape3').scrollIntoView({ behavior: 'smooth' });
@@ -1026,15 +1247,61 @@
         // SOUMISSION
         // =============================================
         function submitReservation() {
-            // Vérifications
+            // Vérifications des champs obligatoires
             const nom = document.getElementById('nom').value.trim().toUpperCase();
             const prenom = document.getElementById('prenom').value.trim();
-            const email = document.getElementById('email').value.trim();
+            const adresse = document.getElementById('adresse').value.trim();
+            const codePostal = document.getElementById('codePostal').value.trim();
+            const ville = document.getElementById('ville').value.trim();
             const telephone = document.getElementById('telephone').value.trim();
+            const email = document.getElementById('email').value.trim();
             const reglement = document.getElementById('reglement').checked;
             
-            if (!nom || !prenom || !email || !telephone) {
-                alert('Veuillez remplir tous les champs obligatoires.');
+            if (!nom) {
+                alert('Veuillez entrer votre nom.');
+                document.getElementById('nom').focus();
+                return;
+            }
+            
+            if (!prenom) {
+                alert('Veuillez entrer votre prénom.');
+                document.getElementById('prenom').focus();
+                return;
+            }
+            
+            if (!adresse) {
+                alert('Veuillez entrer votre adresse.');
+                document.getElementById('adresse').focus();
+                return;
+            }
+            
+            if (!codePostal) {
+                alert('Veuillez entrer votre code postal.');
+                document.getElementById('codePostal').focus();
+                return;
+            }
+            
+            if (!ville) {
+                alert('Veuillez entrer votre ville.');
+                document.getElementById('ville').focus();
+                return;
+            }
+            
+            if (!telephone) {
+                alert('Veuillez entrer votre numéro de téléphone.');
+                document.getElementById('telephone').focus();
+                return;
+            }
+            
+            if (!email) {
+                alert('Veuillez entrer votre adresse e-mail.');
+                document.getElementById('email').focus();
+                return;
+            }
+            
+            if (!reglementLu) {
+                alert('Veuillez lire le règlement en entier avant de valider.');
+                document.getElementById('reglementScroll').scrollIntoView({ behavior: 'smooth' });
                 return;
             }
             
@@ -1064,7 +1331,6 @@
             const mode = document.getElementById('modePeche').value;
             const binome = mode === 'Américaine' ? document.getElementById('binomeNom').value.trim() : '';
             
-            // Format de date pour le Sheet
             const dateParts = selectedDateKey.split('-');
             const dateFormatted = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
             
@@ -1073,9 +1339,9 @@
                 horodateur: new Date().toLocaleString('fr-FR'),
                 email: email,
                 nomPrenom: nom + ' ' + prenom,
-                adresse: document.getElementById('adresse').value.trim(),
-                codePostal: document.getElementById('codePostal').value.trim(),
-                ville: document.getElementById('ville').value.trim(),
+                adresse: adresse,
+                codePostal: codePostal,
+                ville: ville,
                 telephone: telephone,
                 dateReservation: dateFormatted,
                 poste: "Poste " + selectedPoste,
@@ -1095,7 +1361,6 @@
                 body: JSON.stringify(data)
             })
             .then(() => {
-                // Afficher le modal de succès
                 document.getElementById('modalSuccess').classList.add('active');
             })
             .catch(error => {
@@ -1119,14 +1384,13 @@
         function resetForm() {
             closeModal('modalSuccess');
             
-            // Reset toutes les sélections
             selectedMonth = null;
             selectedDay = null;
             selectedPoste = null;
             selectedDateKey = null;
             selectedDateFull = null;
+            reglementLu = false;
             
-            // Reset les formulaires
             document.querySelectorAll('.month-btn, .day-btn, .poste-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('daysContainer').classList.add('hidden');
             document.getElementById('etape2').classList.add('hidden');
@@ -1134,24 +1398,28 @@
             document.getElementById('step2').classList.remove('active');
             document.getElementById('step3').classList.remove('active');
             
-            // Reset les champs
             document.getElementById('creneau').value = '';
             document.getElementById('modePeche').value = 'Individuel';
             document.getElementById('binomeNom').value = '';
             document.getElementById('binomeZone').classList.remove('visible');
             document.getElementById('nom').value = '';
             document.getElementById('prenom').value = '';
-            document.getElementById('email').value = '';
-            document.getElementById('telephone').value = '';
             document.getElementById('adresse').value = '';
             document.getElementById('codePostal').value = '';
             document.getElementById('ville').value = '';
+            document.getElementById('telephone').value = '';
+            document.getElementById('email').value = '';
             document.getElementById('reglement').checked = false;
+            document.getElementById('reglement').disabled = true;
+            document.getElementById('checkboxGroup').classList.add('disabled');
+            document.getElementById('btnSubmit').disabled = true;
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('reglementStatus').textContent = '⬇️ Faites défiler pour lire le règlement complet';
+            document.getElementById('reglementStatus').classList.remove('complete');
+            document.getElementById('reglementScroll').scrollTop = 0;
             
-            // Scroll en haut
             window.scrollTo({ top: 0, behavior: 'smooth' });
             
-            // Recharger les données
             loadData();
         }
     </script>
