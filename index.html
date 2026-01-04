@@ -914,15 +914,24 @@
             }
             document.getElementById('dateSelectedInfo').innerHTML = infoHtml;
             
-            // Si fermé le matin, masquer l'option matin
+            // Si fermé le matin, masquer l'option matin ET journée
             const creneauSelect = document.getElementById('creneau');
             const matinOption = creneauSelect.querySelector('option[value="Le matin"]');
+            const journeeOption = creneauSelect.querySelector('option[value="La journée"]');
+            
             if (fermeMatin) {
                 matinOption.disabled = true;
                 matinOption.textContent = "🌅 Le matin (Fermé)";
+                journeeOption.disabled = true;
+                journeeOption.textContent = "📅 La journée (Fermé le matin)";
+                // Sélectionner automatiquement l'après-midi
+                creneauSelect.value = "L'après midi";
             } else {
                 matinOption.disabled = false;
                 matinOption.textContent = "🌅 Le matin";
+                journeeOption.disabled = false;
+                journeeOption.textContent = "📅 La journée";
+                creneauSelect.value = "";
             }
             
             // Afficher les postes
