@@ -110,7 +110,7 @@
     <div class="container">
         <div class="header">
             <span class="admin-gear" onclick="openAdminModal()">⚙️</span>
-            <h1>🎣 Carpodrome</h1>
+            <h1 id="pageTitre">🎣 Carpodrome</h1>
             <p>Réservation de poste de pêche</p>
         </div>
         <div class="step-indicator">
@@ -249,14 +249,45 @@
         <div class="modal-content large">
             <div class="modal-header"><h2>⚙️ Administration</h2></div>
             <div class="modal-body">
-                <div class="form-group"><label>Contenu du cadre bleu "Horaires" :</label><textarea class="admin-textarea" id="adminInfoContent"></textarea></div>
-                <div class="admin-help">
-                    <h4>💡 Balises HTML disponibles :</h4>
-                    <p><code>&lt;h4&gt;Titre&lt;/h4&gt;</code> - Titre</p>
-                    <p><code>&lt;p&gt;Texte&lt;/p&gt;</code> - Paragraphe</p>
-                    <p><code>&lt;strong&gt;Gras&lt;/strong&gt;</code> - Texte en gras</p>
-                    <p><code>&lt;br&gt;</code> - Retour à la ligne</p>
+                <div class="form-group">
+                    <label>📌 Titre de la page :</label>
+                    <input type="text" id="adminTitre" placeholder="Ex: Carpodrome 2026">
                 </div>
+                
+                <hr style="margin: 20px 0; border: none; border-top: 2px solid #e2e8f0;">
+                
+                <h4 style="color: #667eea; margin-bottom: 15px;">📋 Contenu du cadre bleu</h4>
+                
+                <div class="form-group">
+                    <label>Titre du cadre :</label>
+                    <input type="text" id="adminCadreTitre" placeholder="Ex: 📌 Horaires d'ouverture">
+                </div>
+                
+                <div class="form-group">
+                    <label>Ligne 1 :</label>
+                    <input type="text" id="adminLigne1" placeholder="Ex: Du 1er mars au 4 mai : Samedis, Dimanches et jours fériés">
+                </div>
+                
+                <div class="form-group">
+                    <label>Ligne 2 :</label>
+                    <input type="text" id="adminLigne2" placeholder="Ex: Du 5 mai au 30 octobre : Tous les jours">
+                </div>
+                
+                <div class="form-group">
+                    <label>Ligne 3 :</label>
+                    <input type="text" id="adminLigne3" placeholder="Ex: Pêche de 8h à 19h (mars-avril et septembre-octobre)">
+                </div>
+                
+                <div class="form-group">
+                    <label>Ligne 4 :</label>
+                    <input type="text" id="adminLigne4" placeholder="Ex: Pêche de 8h à 20h (mai à août)">
+                </div>
+                
+                <div class="form-group">
+                    <label>Ligne 5 (optionnel) :</label>
+                    <input type="text" id="adminLigne5" placeholder="">
+                </div>
+                
                 <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
                     <button class="modal-btn success" onclick="saveAdminContent()">💾 Enregistrer</button>
                     <button class="modal-btn" onclick="closeModal('modalAdmin')" style="background: #6c757d; color: white;">Annuler</button>
@@ -307,11 +338,15 @@
     <script>
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyAQDfPFUMrEQGxgY8JRufTTjYT1HknQ31WXOaid0w6Qfy9UBsSP-_UVW3t3az-F_ZZGg/exec";
         const ADMIN_PASSWORD = "admincarpodrome";
-        const DEFAULT_INFO_CONTENT = `<h4>📌 Horaires d'ouverture</h4>
-<p><strong>Du 1er mars au 4 mai :</strong> Samedis, Dimanches et jours fériés</p>
-<p><strong>Du 5 mai au 30 octobre :</strong> Tous les jours</p>
-<p style="margin-top: 10px; font-size: 0.9em;">• Pêche de 8h à 19h (mars-avril et septembre-octobre)</p>
-<p style="font-size: 0.9em;">• Pêche de 8h à 20h (mai à août)</p>`;
+        const DEFAULT_TITRE = "🎣 Carpodrome";
+        const DEFAULT_CADRE = {
+            titre: "📌 Horaires d'ouverture",
+            ligne1: "Du 1er mars au 4 mai : Samedis, Dimanches et jours fériés",
+            ligne2: "Du 5 mai au 30 octobre : Tous les jours",
+            ligne3: "• Pêche de 8h à 19h (mars-avril et septembre-octobre)",
+            ligne4: "• Pêche de 8h à 20h (mai à août)",
+            ligne5: ""
+        };
         
         // SEULS les mois ouverts (Mars à Octobre)
         const JOURS_OUVERTURE = { 
@@ -350,7 +385,16 @@
         function checkAdminPassword() {
             if (document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
                 closeModal('modalPassword');
-                document.getElementById('adminInfoContent').value = localStorage.getItem('carpodromeInfoContent') || DEFAULT_INFO_CONTENT;
+                // Charger le titre
+                document.getElementById('adminTitre').value = localStorage.getItem('carpodromeTitre') || DEFAULT_TITRE;
+                // Charger le cadre
+                const cadre = JSON.parse(localStorage.getItem('carpodromeCadre') || 'null') || DEFAULT_CADRE;
+                document.getElementById('adminCadreTitre').value = cadre.titre || '';
+                document.getElementById('adminLigne1').value = cadre.ligne1 || '';
+                document.getElementById('adminLigne2').value = cadre.ligne2 || '';
+                document.getElementById('adminLigne3').value = cadre.ligne3 || '';
+                document.getElementById('adminLigne4').value = cadre.ligne4 || '';
+                document.getElementById('adminLigne5').value = cadre.ligne5 || '';
                 document.getElementById('modalAdmin').classList.add('active');
             } else {
                 document.getElementById('passwordError').style.display = 'block';
@@ -360,15 +404,46 @@
         }
         
         function saveAdminContent() {
-            const content = document.getElementById('adminInfoContent').value;
-            localStorage.setItem('carpodromeInfoContent', content);
-            document.getElementById('infoBoxHoraires').innerHTML = content;
+            // Sauvegarder le titre
+            const titre = document.getElementById('adminTitre').value.trim() || DEFAULT_TITRE;
+            localStorage.setItem('carpodromeTitre', titre);
+            document.getElementById('pageTitre').textContent = titre;
+            
+            // Sauvegarder le cadre
+            const cadre = {
+                titre: document.getElementById('adminCadreTitre').value.trim(),
+                ligne1: document.getElementById('adminLigne1').value.trim(),
+                ligne2: document.getElementById('adminLigne2').value.trim(),
+                ligne3: document.getElementById('adminLigne3').value.trim(),
+                ligne4: document.getElementById('adminLigne4').value.trim(),
+                ligne5: document.getElementById('adminLigne5').value.trim()
+            };
+            localStorage.setItem('carpodromeCadre', JSON.stringify(cadre));
+            renderInfoBox(cadre);
+            
             closeModal('modalAdmin');
             alert('✅ Modifications enregistrées !');
         }
         
         function loadInfoBoxContent() {
-            document.getElementById('infoBoxHoraires').innerHTML = localStorage.getItem('carpodromeInfoContent') || DEFAULT_INFO_CONTENT;
+            // Charger le titre
+            const titre = localStorage.getItem('carpodromeTitre') || DEFAULT_TITRE;
+            document.getElementById('pageTitre').textContent = titre;
+            
+            // Charger le cadre
+            const cadre = JSON.parse(localStorage.getItem('carpodromeCadre') || 'null') || DEFAULT_CADRE;
+            renderInfoBox(cadre);
+        }
+        
+        function renderInfoBox(cadre) {
+            let html = '';
+            if (cadre.titre) html += `<h4>${cadre.titre}</h4>`;
+            if (cadre.ligne1) html += `<p>${cadre.ligne1}</p>`;
+            if (cadre.ligne2) html += `<p>${cadre.ligne2}</p>`;
+            if (cadre.ligne3) html += `<p style="margin-top: 10px; font-size: 0.9em;">${cadre.ligne3}</p>`;
+            if (cadre.ligne4) html += `<p style="font-size: 0.9em;">${cadre.ligne4}</p>`;
+            if (cadre.ligne5) html += `<p style="font-size: 0.9em;">${cadre.ligne5}</p>`;
+            document.getElementById('infoBoxHoraires').innerHTML = html;
         }
         
         function loadData() {
