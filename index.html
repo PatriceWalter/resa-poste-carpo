@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Réservation Carpodrome</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
@@ -88,7 +90,7 @@
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .modal.active { display: flex; }
         .modal-content { background: white; border-radius: 15px; max-width: 500px; width: 100%; overflow: hidden; animation: modalIn 0.3s; }
-        .modal-content.large { max-width: 700px; }
+        .modal-content.large { max-width: 700px; max-height: 90vh; overflow-y: auto; }
         @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
         .modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align: center; }
         .modal-body { padding: 30px; }
@@ -99,14 +101,14 @@
         .modal-btn.primary { background: #667eea; color: white; }
         .modal-btn.primary:hover { background: #5a6fd6; }
         .modal-btn.success { background: #28a745; color: white; }
-        .admin-textarea { width: 100%; min-height: 200px; padding: 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit; line-height: 1.6; resize: vertical; }
-        .admin-textarea:focus { outline: none; border-color: #667eea; }
-        .admin-help { background: #f8f9fa; border-radius: 8px; padding: 15px; margin-top: 15px; font-size: 13px; }
-        .admin-help h4 { color: #667eea; margin-bottom: 10px; }
-        .admin-help code { background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+        .sync-badge { position: fixed; top: 10px; right: 10px; padding: 5px 10px; border-radius: 15px; font-size: 12px; color: white; z-index: 100; }
+        .sync-badge.online { background: #28a745; }
+        .sync-badge.offline { background: #dc3545; }
     </style>
 </head>
 <body>
+    <div class="sync-badge" id="syncBadge">⏳ Connexion...</div>
+    
     <div class="container">
         <div class="header">
             <span class="admin-gear" onclick="openAdminModal()">⚙️</span>
@@ -336,6 +338,22 @@
     </div>
 
     <script>
+        // =============================================
+        // CONFIGURATION FIREBASE
+        // =============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBdTsLvTO5n0JNpx_pZypY3LjqlEE-YBSQ",
+            authDomain: "reservation-carpodrome.firebaseapp.com",
+            databaseURL: "https://reservation-carpodrome-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "reservation-carpodrome",
+            storageBucket: "reservation-carpodrome.appspot.com",
+            messagingSenderId: "392aborede729044",
+            appId: "1:392729044676:web:abc123"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyAQDfPFUMrEQGxgY8JRufTTjYT1HknQ31WXOaid0w6Qfy9UBsSP-_UVW3t3az-F_ZZGg/exec";
         const ADMIN_PASSWORD = "admincarpodrome";
         const DEFAULT_TITRE = "🎣 Carpodrome";
@@ -348,33 +366,104 @@
             ligne5: ""
         };
         
-        // SEULS les mois ouverts (Mars à Octobre)
-        const JOURS_OUVERTURE = { 
-            2: [1,7,8,14,15,21,22,28,29], 
-            3: [11,12,18,19,25,26], 
-            4: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 
-            5: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 
-            6: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 
+        // Valeurs par défaut (utilisées si Firebase non disponible)
+        const DEFAULT_JOURS_OUVERTURE = { 
+            3: [1,7,8,14,15,21,22,28,29], 
+            4: [11,12,18,19,25,26], 
+            5: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 
+            6: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 
             7: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 
-            8: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 
-            9: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31] 
+            8: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 
+            9: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 
+            10: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31] 
         };
-        const FERME_MATIN = { 2: [28], 3: [25], 5: [13], 8: [19], 9: [17] };
+        const DEFAULT_FERME_MATIN = { 3: [28], 4: [25], 6: [13], 9: [19], 10: [17] };
+        
+        // Variables dynamiques (chargées depuis Firebase)
+        let calendrierConfig = { annee: 2026, joursOuverture: {}, fermeMatin: {} };
+        let firebaseReady = false;
+        
         const MOIS_NOMS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
         const JOURS_SEMAINE = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
         
         let selectedMonth = null, selectedDay = null, selectedPoste = null, selectedDateKey = null, selectedDateFull = null;
         let reservationsData = {}, bannisData = [], reglementLu = false;
         
+        // =============================================
+        // FONCTIONS CALENDRIER DYNAMIQUE
+        // =============================================
+        function getJoursOuverture() {
+            return calendrierConfig.joursOuverture && Object.keys(calendrierConfig.joursOuverture).length > 0 
+                ? calendrierConfig.joursOuverture 
+                : DEFAULT_JOURS_OUVERTURE;
+        }
+        
+        function getFermeMatin() {
+            return calendrierConfig.fermeMatin && Object.keys(calendrierConfig.fermeMatin).length > 0 
+                ? calendrierConfig.fermeMatin 
+                : DEFAULT_FERME_MATIN;
+        }
+        
+        function getAnnee() {
+            return calendrierConfig.annee || 2026;
+        }
+        
+        // =============================================
+        // INITIALISATION
+        // =============================================
         document.addEventListener('DOMContentLoaded', function() {
             loadInfoBoxContent();
-            renderMonths();
+            setupFirebaseListeners();
             loadData();
             document.getElementById('reglement').addEventListener('change', function() {
                 document.getElementById('btnSubmit').disabled = !this.checked;
             });
         });
         
+        function setupFirebaseListeners() {
+            // Connexion status
+            database.ref('.info/connected').on('value', (snap) => {
+                const badge = document.getElementById('syncBadge');
+                if (snap.val()) {
+                    badge.textContent = '🟢 Synchronisé';
+                    badge.className = 'sync-badge online';
+                    firebaseReady = true;
+                } else {
+                    badge.textContent = '🔴 Hors ligne';
+                    badge.className = 'sync-badge offline';
+                }
+            });
+            
+            // Écouter les changements du calendrier
+            database.ref('calendrierConfig').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    calendrierConfig = data;
+                } else {
+                    calendrierConfig = { annee: 2026, joursOuverture: DEFAULT_JOURS_OUVERTURE, fermeMatin: DEFAULT_FERME_MATIN };
+                }
+                renderMonths();
+            });
+            
+            // Écouter les réservations
+            database.ref('reservations').on('value', (snap) => {
+                const data = snap.val() || {};
+                reservationsData = {};
+                Object.keys(data).forEach(dateKey => {
+                    reservationsData[dateKey] = data[dateKey];
+                });
+            });
+            
+            // Écouter les bannis
+            database.ref('infractions/bannis').on('value', (snap) => {
+                bannisData = snap.val() || [];
+                if (!Array.isArray(bannisData)) bannisData = Object.values(bannisData);
+            });
+        }
+        
+        // =============================================
+        // ADMIN
+        // =============================================
         function openAdminModal() {
             document.getElementById('adminPassword').value = '';
             document.getElementById('passwordError').style.display = 'none';
@@ -385,9 +474,7 @@
         function checkAdminPassword() {
             if (document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
                 closeModal('modalPassword');
-                // Charger le titre
                 document.getElementById('adminTitre').value = localStorage.getItem('carpodromeTitre') || DEFAULT_TITRE;
-                // Charger le cadre
                 const cadre = JSON.parse(localStorage.getItem('carpodromeCadre') || 'null') || DEFAULT_CADRE;
                 document.getElementById('adminCadreTitre').value = cadre.titre || '';
                 document.getElementById('adminLigne1').value = cadre.ligne1 || '';
@@ -404,12 +491,10 @@
         }
         
         function saveAdminContent() {
-            // Sauvegarder le titre
             const titre = document.getElementById('adminTitre').value.trim() || DEFAULT_TITRE;
             localStorage.setItem('carpodromeTitre', titre);
             document.getElementById('pageTitre').textContent = titre;
             
-            // Sauvegarder le cadre
             const cadre = {
                 titre: document.getElementById('adminCadreTitre').value.trim(),
                 ligne1: document.getElementById('adminLigne1').value.trim(),
@@ -426,11 +511,8 @@
         }
         
         function loadInfoBoxContent() {
-            // Charger le titre
             const titre = localStorage.getItem('carpodromeTitre') || DEFAULT_TITRE;
             document.getElementById('pageTitre').textContent = titre;
-            
-            // Charger le cadre
             const cadre = JSON.parse(localStorage.getItem('carpodromeCadre') || 'null') || DEFAULT_CADRE;
             renderInfoBox(cadre);
         }
@@ -454,7 +536,6 @@
         
         function handleData(data) {
             if (data.status === 'success') {
-                if (data.reservations) data.reservations.forEach(r => { if (!reservationsData[r.dateJour]) reservationsData[r.dateJour] = {}; reservationsData[r.dateJour][r.poste] = r; });
                 if (data.bannis) bannisData = data.bannis;
             }
         }
@@ -472,13 +553,18 @@
             }
         }
         
-        // AFFICHE UNIQUEMENT LES MOIS OUVERTS
+        // =============================================
+        // ÉTAPE 1 - MOIS ET JOURS (DYNAMIQUE)
+        // =============================================
         function renderMonths() {
             const container = document.getElementById('monthSelector');
             container.innerHTML = '';
+            const joursOuverture = getJoursOuverture();
+            
             MOIS_NOMS.forEach((nom, index) => {
-                // Ne créer le bouton QUE si le mois a des jours d'ouverture
-                if (JOURS_OUVERTURE[index] && JOURS_OUVERTURE[index].length > 0) {
+                const moisNum = index + 1;
+                const hasJours = joursOuverture[moisNum] && joursOuverture[moisNum].length > 0;
+                if (hasJours) {
                     const btn = document.createElement('div');
                     btn.className = 'month-btn';
                     btn.textContent = nom;
@@ -499,10 +585,13 @@
         function renderDays(monthIndex) {
             const container = document.getElementById('daysGrid');
             container.innerHTML = '';
-            const jours = JOURS_OUVERTURE[monthIndex] || [];
-            const fermeMatin = FERME_MATIN[monthIndex] || [];
+            const moisNum = monthIndex + 1;
+            const jours = getJoursOuverture()[moisNum] || [];
+            const fermeMatin = getFermeMatin()[moisNum] || [];
+            const annee = getAnnee();
+            
             jours.forEach(jour => {
-                const date = new Date(2026, monthIndex, jour);
+                const date = new Date(annee, monthIndex, jour);
                 const btn = document.createElement('div');
                 btn.className = 'day-btn' + (fermeMatin.includes(jour) ? ' ferme-matin' : '');
                 btn.innerHTML = `<span class="day-name">${JOURS_SEMAINE[date.getDay()]}</span><strong>${jour}</strong>`;
@@ -513,42 +602,43 @@
         
         function selectDay(jour, monthIndex) {
             selectedDay = jour; selectedPoste = null;
-            selectedDateKey = `2026-${String(monthIndex + 1).padStart(2, '0')}-${String(jour).padStart(2, '0')}`;
-            selectedDateFull = new Date(2026, monthIndex, jour).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            const annee = getAnnee();
+            const moisNum = monthIndex + 1;
+            selectedDateKey = `${annee}-${String(moisNum).padStart(2, '0')}-${String(jour).padStart(2, '0')}`;
+            selectedDateFull = new Date(annee, monthIndex, jour).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
             document.querySelectorAll('.day-btn').forEach(btn => btn.classList.remove('active'));
             event.target.closest('.day-btn').classList.add('active');
             goToStep2();
         }
         
+        // =============================================
+        // ÉTAPE 2 - POSTES
+        // =============================================
         function goToStep2() {
             document.getElementById('etape2').classList.remove('hidden');
             document.getElementById('step2').classList.add('active');
             document.getElementById('loadingPostes').classList.remove('hidden');
             document.getElementById('postesContainer').classList.add('hidden');
-            const script = document.createElement('script');
-            script.src = GOOGLE_SCRIPT_URL + '?callback=handleDataAndShowPostes&t=' + Date.now();
-            document.body.appendChild(script);
+            
+            // Petit délai pour laisser Firebase se synchroniser
+            setTimeout(() => {
+                renderPostes();
+            }, 500);
+            
             document.getElementById('etape2').scrollIntoView({ behavior: 'smooth' });
-        }
-        
-        function handleDataAndShowPostes(data) {
-            if (data.status === 'success') {
-                reservationsData = {};
-                if (data.reservations) data.reservations.forEach(r => { if (!reservationsData[r.dateJour]) reservationsData[r.dateJour] = {}; reservationsData[r.dateJour][r.poste] = r; });
-                if (data.bannis) bannisData = data.bannis;
-            }
-            renderPostes();
         }
         
         function renderPostes() {
             document.getElementById('loadingPostes').classList.add('hidden');
             document.getElementById('postesContainer').classList.remove('hidden');
-            const fermeMatin = FERME_MATIN[selectedMonth] && FERME_MATIN[selectedMonth].includes(selectedDay);
+            
+            const moisNum = selectedMonth + 1;
+            const fermeMatin = getFermeMatin()[moisNum] && getFermeMatin()[moisNum].includes(selectedDay);
+            
             let infoHtml = `<h4>📅 ${selectedDateFull}</h4>`;
             if (fermeMatin) infoHtml += `<p style="color: #b45309; margin-top: 5px;">⚠️ Fermé le matin - Réservation possible uniquement l'après-midi</p>`;
             document.getElementById('dateSelectedInfo').innerHTML = infoHtml;
             
-            // SUPPRESSION des options matin/journée si fermé le matin
             const creneauSelect = document.getElementById('creneau');
             if (fermeMatin) {
                 creneauSelect.innerHTML = `<option value="L'après midi" selected>☀️ L'après midi</option>`;
@@ -559,6 +649,7 @@
             const container = document.getElementById('postesGrid');
             container.innerHTML = '';
             const dayReservations = reservationsData[selectedDateKey] || {};
+            
             for (let i = 1; i <= 14; i++) {
                 const isOccupe = dayReservations[i] && dayReservations[i].nom;
                 const btn = document.createElement('div');
@@ -579,6 +670,9 @@
             document.getElementById('binomeZone').classList.toggle('visible', document.getElementById('modePeche').value === 'Américaine');
         }
         
+        // =============================================
+        // ÉTAPE 3 - INFOS
+        // =============================================
         function goToStep3() {
             if (!selectedPoste) { alert('Veuillez sélectionner un poste.'); return; }
             const creneau = document.getElementById('creneau').value;
@@ -593,6 +687,9 @@
             document.getElementById('etape3').scrollIntoView({ behavior: 'smooth' });
         }
         
+        // =============================================
+        // SOUMISSION
+        // =============================================
         function submitReservation() {
             const nom = document.getElementById('nom').value.trim().toUpperCase();
             const prenom = document.getElementById('prenom').value.trim();
@@ -610,11 +707,31 @@
             if (!email) { alert('Veuillez entrer votre e-mail.'); return; }
             if (!reglementLu) { alert('Veuillez lire le règlement en entier.'); return; }
             if (!document.getElementById('reglement').checked) { alert('Veuillez accepter le règlement.'); return; }
-            if (bannisData.some(b => b.nom && b.nom.toUpperCase() === nom && b.prenom && b.prenom.toLowerCase() === prenom.toLowerCase())) { document.getElementById('modalBanni').classList.add('active'); return; }
+            
+            // Vérifier si banni
+            const isBanni = bannisData.some(b => b && b.nom && b.nom.toUpperCase() === nom && b.prenom && b.prenom.toLowerCase() === prenom.toLowerCase());
+            if (isBanni) { document.getElementById('modalBanni').classList.add('active'); return; }
+            
             const btn = document.getElementById('btnSubmit');
             btn.disabled = true; btn.textContent = '⏳ Envoi en cours...';
             const dateParts = selectedDateKey.split('-');
-            const data = { type: "reservation", horodateur: new Date().toLocaleString('fr-FR'), email: email, nomPrenom: nom + ' ' + prenom, adresse: adresse, codePostal: codePostal, ville: ville, telephone: telephone, dateReservation: `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`, poste: "Poste " + selectedPoste, creneau: document.getElementById('creneau').value, mode: document.getElementById('modePeche').value, binome: document.getElementById('modePeche').value === 'Américaine' ? document.getElementById('binomeNom').value.trim() : '', reglement: "Oui" };
+            const data = { 
+                type: "reservation", 
+                horodateur: new Date().toLocaleString('fr-FR'), 
+                email: email, 
+                nomPrenom: nom + ' ' + prenom, 
+                adresse: adresse, 
+                codePostal: codePostal, 
+                ville: ville, 
+                telephone: telephone, 
+                dateReservation: `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`, 
+                poste: "Poste " + selectedPoste, 
+                creneau: document.getElementById('creneau').value, 
+                mode: document.getElementById('modePeche').value, 
+                binome: document.getElementById('modePeche').value === 'Américaine' ? document.getElementById('binomeNom').value.trim() : '', 
+                reglement: "Oui" 
+            };
+            
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
             .then(() => { document.getElementById('modalSuccess').classList.add('active'); })
             .catch(error => { alert('Erreur: ' + error.message); })
@@ -646,7 +763,6 @@
             document.getElementById('reglementStatus').classList.remove('complete');
             document.getElementById('reglementScroll').scrollTop = 0;
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            loadData();
         }
     </script>
 </body>
