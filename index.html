@@ -27,20 +27,19 @@
         .month-btn { padding: 15px 10px; border: 2px solid #e2e8f0; border-radius: 10px; background: white; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; text-align: center; }
         .month-btn:hover { border-color: #667eea; background: #f7f8ff; }
         .month-btn.active { background: #667eea; color: white; border-color: #667eea; }
-        .month-btn.disabled { opacity: 0.4; cursor: not-allowed; background: #f5f5f5; }
-        .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 20px; }
-        @media (max-width: 600px) { .days-grid { grid-template-columns: repeat(4, 1fr); } }
-        .day-btn { padding: 12px 5px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; font-size: 14px; transition: all 0.3s; text-align: center; }
-        .day-btn:hover:not(.disabled) { border-color: #667eea; background: #f7f8ff; }
+        .days-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 20px; }
+        @media (max-width: 600px) { .days-grid { grid-template-columns: repeat(3, 1fr); } }
+        .day-btn { padding: 10px 5px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; font-size: 14px; transition: all 0.3s; text-align: center; min-width: 70px; }
+        .day-btn:hover { border-color: #667eea; background: #f7f8ff; }
         .day-btn.active { background: #667eea; color: white; border-color: #667eea; }
-        .day-btn .day-name { font-size: 10px; color: #888; display: block; }
+        .day-btn .day-name { font-size: 9px; color: #888; display: block; text-transform: capitalize; }
         .day-btn.active .day-name { color: rgba(255,255,255,0.8); }
         .day-btn.ferme-matin { border-color: #ffc107; background: #fffbeb; }
         .day-btn.ferme-matin::after { content: "⚠️ Fermé matin"; display: block; font-size: 9px; color: #b45309; margin-top: 3px; }
         .postes-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 20px; }
         @media (max-width: 600px) { .postes-grid { grid-template-columns: repeat(4, 1fr); } }
         .poste-btn { padding: 20px 10px; border: 2px solid #e2e8f0; border-radius: 10px; background: white; cursor: pointer; font-size: 16px; font-weight: bold; transition: all 0.3s; text-align: center; }
-        .poste-btn:hover:not(.disabled):not(.occupe) { border-color: #28a745; background: #f0fff4; }
+        .poste-btn:hover:not(.occupe) { border-color: #28a745; background: #f0fff4; }
         .poste-btn.active { background: #28a745; color: white; border-color: #28a745; }
         .poste-btn.occupe { background: #fee2e2; border-color: #dc3545; cursor: not-allowed; opacity: 0.8; }
         .poste-btn.occupe::after { content: "Occupé"; display: block; font-size: 10px; color: #dc3545; font-weight: normal; }
@@ -314,10 +313,20 @@
 <p style="margin-top: 10px; font-size: 0.9em;">• Pêche de 8h à 19h (mars-avril et septembre-octobre)</p>
 <p style="font-size: 0.9em;">• Pêche de 8h à 20h (mai à août)</p>`;
         
-        const JOURS_OUVERTURE = { 2: [1,7,8,14,15,21,22,28,29], 3: [11,12,18,19,25,26], 4: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 5: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 6: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 7: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 8: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 9: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30] };
+        // SEULS les mois ouverts (Mars à Octobre)
+        const JOURS_OUVERTURE = { 
+            2: [1,7,8,14,15,21,22,28,29], 
+            3: [11,12,18,19,25,26], 
+            4: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 
+            5: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 
+            6: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 
+            7: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 
+            8: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 
+            9: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30] 
+        };
         const FERME_MATIN = { 2: [28], 3: [25], 5: [13], 8: [19], 9: [17] };
         const MOIS_NOMS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-        const JOURS_SEMAINE = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+        const JOURS_SEMAINE = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
         
         let selectedMonth = null, selectedDay = null, selectedPoste = null, selectedDateKey = null, selectedDateFull = null;
         let reservationsData = {}, bannisData = [], reglementLu = false;
@@ -388,12 +397,13 @@
             }
         }
         
+        // AFFICHE UNIQUEMENT LES MOIS OUVERTS
         function renderMonths() {
             const container = document.getElementById('monthSelector');
             container.innerHTML = '';
             MOIS_NOMS.forEach((nom, index) => {
-                const hasJours = JOURS_OUVERTURE[index] && JOURS_OUVERTURE[index].length > 0;
-                if (hasJours) {
+                // Ne créer le bouton QUE si le mois a des jours d'ouverture
+                if (JOURS_OUVERTURE[index] && JOURS_OUVERTURE[index].length > 0) {
                     const btn = document.createElement('div');
                     btn.className = 'month-btn';
                     btn.textContent = nom;
@@ -462,14 +472,15 @@
             let infoHtml = `<h4>📅 ${selectedDateFull}</h4>`;
             if (fermeMatin) infoHtml += `<p style="color: #b45309; margin-top: 5px;">⚠️ Fermé le matin - Réservation possible uniquement l'après-midi</p>`;
             document.getElementById('dateSelectedInfo').innerHTML = infoHtml;
+            
+            // SUPPRESSION des options matin/journée si fermé le matin
             const creneauSelect = document.getElementById('creneau');
             if (fermeMatin) {
-                creneauSelect.innerHTML = `<option value="">-- Sélectionnez un créneau --</option><option value="L'après midi">☀️ L'après midi</option>`;
-                creneauSelect.value = "L'après midi";
+                creneauSelect.innerHTML = `<option value="L'après midi" selected>☀️ L'après midi</option>`;
             } else {
                 creneauSelect.innerHTML = `<option value="">-- Sélectionnez un créneau --</option><option value="Le matin">🌅 Le matin</option><option value="L'après midi">☀️ L'après midi</option><option value="La journée">📅 La journée</option>`;
-                creneauSelect.value = "";
             }
+            
             const container = document.getElementById('postesGrid');
             container.innerHTML = '';
             const dayReservations = reservationsData[selectedDateKey] || {};
@@ -546,7 +557,7 @@
             document.getElementById('etape3').classList.add('hidden');
             document.getElementById('step2').classList.remove('active');
             document.getElementById('step3').classList.remove('active');
-            document.getElementById('creneau').value = '';
+            document.getElementById('creneau').innerHTML = `<option value="">-- Sélectionnez un créneau --</option><option value="Le matin">🌅 Le matin</option><option value="L'après midi">☀️ L'après midi</option><option value="La journée">📅 La journée</option>`;
             document.getElementById('modePeche').value = 'Individuel';
             document.getElementById('binomeNom').value = '';
             document.getElementById('binomeZone').classList.remove('visible');
