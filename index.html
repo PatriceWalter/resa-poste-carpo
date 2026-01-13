@@ -96,6 +96,15 @@
         .modal-body { padding: 30px; }
         .modal-body .icon { font-size: 4em; margin-bottom: 20px; text-align: center; }
         .modal-body h3 { margin-bottom: 15px; color: #333; text-align: center; }
+        .admin-tabs { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px; }
+        .admin-tab { padding: 12px 20px; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; font-weight: 600; color: #666; transition: 0.3s; }
+        .admin-tab:hover { color: #667eea; }
+        .admin-tab.active { color: #667eea; border-bottom-color: #667eea; }
+        .admin-tab-content { display: none; }
+        .admin-tab-content.active { display: block; }
+        .reglement-section { background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .reglement-section h4 { color: #667eea; margin-bottom: 10px; font-size: 14px; }
+        .reglement-section textarea { min-height: 80px; font-size: 13px; }
         .modal-body p { color: #666; margin-bottom: 10px; }
         .modal-btn { padding: 12px 30px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.3s; }
         .modal-btn.primary { background: #667eea; color: white; }
@@ -189,30 +198,7 @@
             <div class="reglement-container">
                 <div class="reglement-header">📜 RÈGLEMENT DU CARPODROME - À LIRE OBLIGATOIREMENT</div>
                 <div class="reglement-scroll" id="reglementScroll" onscroll="checkReglementScroll()">
-                    <h3>🗓️ PÉRIODES ET HORAIRES D'OUVERTURE</h3>
-                    <p>Les horaires de pêche : 30 minutes avant le lever du soleil → 30 minutes après le coucher</p>
-                    <ul><li>Sur réservation uniquement et 24h à l'avance</li><li>Du 1er mars au 4 mai : samedis, dimanches et jours fériés</li><li>Du 5 mai au 30 octobre : tous les jours</li><li>Pêche de 8h à 19h - Période de mars à avril et période de septembre à fin octobre</li><li>Pêche de 8h à 20h - Période de mai à fin août</li></ul>
-                    <p class="important">⚠️ L'AAPPMA peut à tout moment fermer les étangs pour cause d'événements indépendants de notre volonté</p>
-                    <h3>🎫 RÉSERVATION ET TARIFS</h3>
-                    <ul><li>Carte journalière : 10 € / Titulaires de la carte annuelle : 5 €</li><li>Carte demi-journée : 6 € / Titulaires de la carte annuelle : 3 €</li><li>Jours d'événements : pêche payante pour tous (10 €)</li><li>Réservation obligatoire 24h avant via formulaire en ligne</li></ul>
-                    <p class="important">⚠️ Il est impératif que chaque pêcheur dispose de la somme exacte pour l'achat d'une carte.</p>
-                    <h3>🎣 MODALITÉS DE PÊCHE</h3>
-                    <ul><li><strong>Pêche No Kill obligatoire</strong></li><li>Canne au coup uniquement, longueur max : 13 m</li><li>1 ligne par pêcheur</li><li>Max 2 pêcheurs par poste</li><li>Pêche sous la canne, dans la zone du poste réservé</li><li>Amorçage : uniquement à la coupelle ou fronde</li><li>Matériel obligatoire : bassine ou tapis de réception épais avec rebord (5cm mini)</li><li>Hameçon sans ardillon, taille max nº10</li><li>Bourriche autorisée pour poisson blanc uniquement</li><li>Carpes et tanches : relâchées immédiatement</li><li>Esches autorisées : végétales, vers de terre, asticots</li><li>Pellets et baby corn autorisés</li><li>Graines cuites obligatoirement</li></ul>
-                    <h3>👶 PÊCHE DES MINEURS</h3>
-                    <ul><li>Autorisée à partir de 12 ans, en journée uniquement</li><li>Moins de 12 ans : accompagnement obligatoire</li></ul>
-                    <h3>👮 CONTRÔLES ET SANCTIONS</h3>
-                    <ul><li>Carte de pêche à présenter</li><li>Contrôles réguliers et imprévus</li></ul>
-                    <p><strong>Sanctions :</strong></p>
-                    <ul><li>1ère infraction → avertissement</li><li>2ème infraction → exclusion temporaire ou définitive</li><li>Aucun remboursement en cas d'exclusion</li></ul>
-                    <h3>⛔ INTERDICTIONS</h3>
-                    <ul class="interdit"><li>❌ Feux au sol et barbecues</li><li>❌ Pêche de nuit</li><li>❌ Camping (seuls parapluies autorisés)</li><li>❌ Baignade, canotage</li><li>❌ Mutilation ou marquage des poissons</li><li>❌ Franglaise, Feeder</li><li>❌ Graines crues</li><li>❌ Pêche au pain</li><li>❌ Hameçons avec ardillons</li><li>❌ Pêche en surface</li></ul>
-                    <h3>🗑️ GESTION DES DÉCHETS</h3>
-                    <ul><li>Ramener ses déchets</li><li>Amende possible : 150 €</li></ul>
-                    <div class="contact-box">
-                        <h3>📞 CONTACTS UTILES</h3>
-                        <ul><li><strong>Président :</strong> René Rahm – 06.50.76.59.34</li><li><strong>Problème sur réservations :</strong> Patrice Walter – 06.37.70.37.31</li><li><strong>Garde pêche :</strong> Raymond Ledig – 06.95.24.90.84</li></ul>
-                        <p style="margin-top: 15px;">🌐 <a href="https://www.aappma-gundershoffen.fr" target="_blank">www.aappma-gundershoffen.fr</a></p>
-                    </div>
+                    <div id="reglementContent"></div>
                     <div style="height: 50px;"></div>
                     <p style="text-align: center; font-weight: bold; color: #28a745;">✅ Vous avez lu l'intégralité du règlement</p>
                     <div style="height: 20px;"></div>
@@ -251,43 +237,98 @@
         <div class="modal-content large">
             <div class="modal-header"><h2>⚙️ Administration</h2></div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label>📌 Titre de la page :</label>
-                    <input type="text" id="adminTitre" placeholder="Ex: Carpodrome 2026">
+                <div class="admin-tabs">
+                    <div class="admin-tab active" onclick="switchAdminTab('general')">📋 Général</div>
+                    <div class="admin-tab" onclick="switchAdminTab('reglement')">📜 Règlement</div>
                 </div>
                 
-                <hr style="margin: 20px 0; border: none; border-top: 2px solid #e2e8f0;">
-                
-                <h4 style="color: #667eea; margin-bottom: 15px;">📋 Contenu du cadre bleu</h4>
-                
-                <div class="form-group">
-                    <label>Titre du cadre :</label>
-                    <input type="text" id="adminCadreTitre" placeholder="Ex: 📌 Horaires d'ouverture">
+                <!-- Onglet Général -->
+                <div class="admin-tab-content active" id="tabGeneral">
+                    <div class="form-group">
+                        <label>📌 Titre de la page :</label>
+                        <input type="text" id="adminTitre" placeholder="Ex: Carpodrome 2026">
+                    </div>
+                    
+                    <hr style="margin: 20px 0; border: none; border-top: 2px solid #e2e8f0;">
+                    
+                    <h4 style="color: #667eea; margin-bottom: 15px;">📋 Contenu du cadre bleu</h4>
+                    
+                    <div class="form-group">
+                        <label>Titre du cadre :</label>
+                        <input type="text" id="adminCadreTitre" placeholder="Ex: 📌 Horaires d'ouverture">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Ligne 1 :</label>
+                        <input type="text" id="adminLigne1" placeholder="Ex: Du 1er mars au 4 mai : Samedis, Dimanches et jours fériés">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Ligne 2 :</label>
+                        <input type="text" id="adminLigne2" placeholder="Ex: Du 5 mai au 30 octobre : Tous les jours">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Ligne 3 :</label>
+                        <input type="text" id="adminLigne3" placeholder="Ex: Pêche de 8h à 19h (mars-avril et septembre-octobre)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Ligne 4 :</label>
+                        <input type="text" id="adminLigne4" placeholder="Ex: Pêche de 8h à 20h (mai à août)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Ligne 5 (optionnel) :</label>
+                        <input type="text" id="adminLigne5" placeholder="">
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label>Ligne 1 :</label>
-                    <input type="text" id="adminLigne1" placeholder="Ex: Du 1er mars au 4 mai : Samedis, Dimanches et jours fériés">
-                </div>
-                
-                <div class="form-group">
-                    <label>Ligne 2 :</label>
-                    <input type="text" id="adminLigne2" placeholder="Ex: Du 5 mai au 30 octobre : Tous les jours">
-                </div>
-                
-                <div class="form-group">
-                    <label>Ligne 3 :</label>
-                    <input type="text" id="adminLigne3" placeholder="Ex: Pêche de 8h à 19h (mars-avril et septembre-octobre)">
-                </div>
-                
-                <div class="form-group">
-                    <label>Ligne 4 :</label>
-                    <input type="text" id="adminLigne4" placeholder="Ex: Pêche de 8h à 20h (mai à août)">
-                </div>
-                
-                <div class="form-group">
-                    <label>Ligne 5 (optionnel) :</label>
-                    <input type="text" id="adminLigne5" placeholder="">
+                <!-- Onglet Règlement -->
+                <div class="admin-tab-content" id="tabReglement">
+                    <p style="background: #fff3cd; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 13px;">
+                        💡 <strong>Astuce :</strong> Utilisez des tirets (-) au début de chaque ligne pour créer une liste à puces.
+                    </p>
+                    
+                    <div class="reglement-section">
+                        <h4>🗓️ PÉRIODES ET HORAIRES D'OUVERTURE</h4>
+                        <textarea id="reglementHoraires" placeholder="Un élément par ligne..."></textarea>
+                    </div>
+                    
+                    <div class="reglement-section">
+                        <h4>🎫 RÉSERVATION ET TARIFS</h4>
+                        <textarea id="reglementTarifs" placeholder="Un élément par ligne..."></textarea>
+                    </div>
+                    
+                    <div class="reglement-section">
+                        <h4>🎣 MODALITÉS DE PÊCHE</h4>
+                        <textarea id="reglementModalites" placeholder="Un élément par ligne..."></textarea>
+                    </div>
+                    
+                    <div class="reglement-section">
+                        <h4>👶 PÊCHE DES MINEURS</h4>
+                        <textarea id="reglementMineurs" placeholder="Un élément par ligne..."></textarea>
+                    </div>
+                    
+                    <div class="reglement-section">
+                        <h4>👮 CONTRÔLES ET SANCTIONS</h4>
+                        <textarea id="reglementControles" placeholder="Un élément par ligne..."></textarea>
+                    </div>
+                    
+                    <div class="reglement-section">
+                        <h4>⛔ INTERDICTIONS</h4>
+                        <textarea id="reglementInterdictions" placeholder="Un élément par ligne (ajoutez ❌ devant si besoin)..."></textarea>
+                    </div>
+                    
+                    <div class="reglement-section">
+                        <h4>🗑️ GESTION DES DÉCHETS</h4>
+                        <textarea id="reglementDechets" placeholder="Un élément par ligne..."></textarea>
+                    </div>
+                    
+                    <div class="reglement-section">
+                        <h4>📞 CONTACTS UTILES</h4>
+                        <textarea id="reglementContacts" placeholder="Un contact par ligne..."></textarea>
+                    </div>
                 </div>
                 
                 <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
@@ -364,6 +405,17 @@
             ligne3: "• Pêche de 8h à 19h (mars-avril et septembre-octobre)",
             ligne4: "• Pêche de 8h à 20h (mai à août)",
             ligne5: ""
+        };
+        
+        const DEFAULT_REGLEMENT = {
+            horaires: "Les horaires de pêche : 30 minutes avant le lever du soleil → 30 minutes après le coucher\n- Sur réservation uniquement et 24h à l'avance\n- Du 1er mars au 4 mai : samedis, dimanches et jours fériés\n- Du 5 mai au 30 octobre : tous les jours\n- Pêche de 8h à 19h - Période de mars à avril et période de septembre à fin octobre\n- Pêche de 8h à 20h - Période de mai à fin août\n⚠️ L'AAPPMA peut à tout moment fermer les étangs pour cause d'événements indépendants de notre volonté",
+            tarifs: "- Carte journalière : 10 € / Titulaires de la carte annuelle : 5 €\n- Carte demi-journée : 6 € / Titulaires de la carte annuelle : 3 €\n- Jours d'événements : pêche payante pour tous (10 €)\n- Réservation obligatoire 24h avant via formulaire en ligne\n⚠️ Il est impératif que chaque pêcheur dispose de la somme exacte pour l'achat d'une carte.",
+            modalites: "- Pêche No Kill obligatoire\n- Canne au coup uniquement, longueur max : 13 m\n- 1 ligne par pêcheur\n- Max 2 pêcheurs par poste\n- Pêche sous la canne, dans la zone du poste réservé\n- Amorçage : uniquement à la coupelle ou fronde\n- Matériel obligatoire : bassine ou tapis de réception épais avec rebord (5cm mini)\n- Hameçon sans ardillon, taille max nº10\n- Bourriche autorisée pour poisson blanc uniquement\n- Carpes et tanches : relâchées immédiatement\n- Esches autorisées : végétales, vers de terre, asticots\n- Pellets et baby corn autorisés\n- Graines cuites obligatoirement",
+            mineurs: "- Autorisée à partir de 12 ans, en journée uniquement\n- Moins de 12 ans : accompagnement obligatoire",
+            controles: "- Carte de pêche à présenter\n- Contrôles réguliers et imprévus\nSanctions :\n- 1ère infraction → avertissement\n- 2ème infraction → exclusion temporaire ou définitive\n- Aucun remboursement en cas d'exclusion",
+            interdictions: "❌ Feux au sol et barbecues\n❌ Pêche de nuit\n❌ Camping (seuls parapluies autorisés)\n❌ Baignade, canotage\n❌ Mutilation ou marquage des poissons\n❌ Franglaise, Feeder\n❌ Graines crues\n❌ Pêche au pain\n❌ Hameçons avec ardillons\n❌ Pêche en surface",
+            dechets: "- Ramener ses déchets\n- Amende possible : 150 €",
+            contacts: "Président : René Rahm – 06.50.76.59.34\nProblème sur réservations : Patrice Walter – 06.37.70.37.31\nGarde pêche : Raymond Ledig – 06.95.24.90.84\n🌐 www.aappma-gundershoffen.fr"
         };
         
         // Valeurs par défaut (utilisées si Firebase non disponible)
@@ -482,11 +534,36 @@
                 document.getElementById('adminLigne3').value = cadre.ligne3 || '';
                 document.getElementById('adminLigne4').value = cadre.ligne4 || '';
                 document.getElementById('adminLigne5').value = cadre.ligne5 || '';
+                
+                // Charger le règlement
+                const reglement = JSON.parse(localStorage.getItem('carpodromeReglement') || 'null') || DEFAULT_REGLEMENT;
+                document.getElementById('reglementHoraires').value = reglement.horaires || '';
+                document.getElementById('reglementTarifs').value = reglement.tarifs || '';
+                document.getElementById('reglementModalites').value = reglement.modalites || '';
+                document.getElementById('reglementMineurs').value = reglement.mineurs || '';
+                document.getElementById('reglementControles').value = reglement.controles || '';
+                document.getElementById('reglementInterdictions').value = reglement.interdictions || '';
+                document.getElementById('reglementDechets').value = reglement.dechets || '';
+                document.getElementById('reglementContacts').value = reglement.contacts || '';
+                
                 document.getElementById('modalAdmin').classList.add('active');
             } else {
                 document.getElementById('passwordError').style.display = 'block';
                 document.getElementById('adminPassword').value = '';
                 document.getElementById('adminPassword').focus();
+            }
+        }
+        
+        function switchAdminTab(tab) {
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'general') {
+                document.querySelector('.admin-tab:first-child').classList.add('active');
+                document.getElementById('tabGeneral').classList.add('active');
+            } else {
+                document.querySelector('.admin-tab:last-child').classList.add('active');
+                document.getElementById('tabReglement').classList.add('active');
             }
         }
         
@@ -506,6 +583,20 @@
             localStorage.setItem('carpodromeCadre', JSON.stringify(cadre));
             renderInfoBox(cadre);
             
+            // Sauvegarder le règlement
+            const reglement = {
+                horaires: document.getElementById('reglementHoraires').value.trim(),
+                tarifs: document.getElementById('reglementTarifs').value.trim(),
+                modalites: document.getElementById('reglementModalites').value.trim(),
+                mineurs: document.getElementById('reglementMineurs').value.trim(),
+                controles: document.getElementById('reglementControles').value.trim(),
+                interdictions: document.getElementById('reglementInterdictions').value.trim(),
+                dechets: document.getElementById('reglementDechets').value.trim(),
+                contacts: document.getElementById('reglementContacts').value.trim()
+            };
+            localStorage.setItem('carpodromeReglement', JSON.stringify(reglement));
+            renderReglement(reglement);
+            
             closeModal('modalAdmin');
             alert('✅ Modifications enregistrées !');
         }
@@ -515,6 +606,10 @@
             document.getElementById('pageTitre').textContent = titre;
             const cadre = JSON.parse(localStorage.getItem('carpodromeCadre') || 'null') || DEFAULT_CADRE;
             renderInfoBox(cadre);
+            
+            // Charger le règlement
+            const reglement = JSON.parse(localStorage.getItem('carpodromeReglement') || 'null') || DEFAULT_REGLEMENT;
+            renderReglement(reglement);
         }
         
         function renderInfoBox(cadre) {
@@ -526,6 +621,60 @@
             if (cadre.ligne4) html += `<p style="font-size: 0.9em;">${cadre.ligne4}</p>`;
             if (cadre.ligne5) html += `<p style="font-size: 0.9em;">${cadre.ligne5}</p>`;
             document.getElementById('infoBoxHoraires').innerHTML = html;
+        }
+        
+        function formatReglementSection(text, isInterdit = false) {
+            if (!text) return '';
+            const lines = text.split('\n').filter(l => l.trim());
+            let html = '';
+            let inList = false;
+            
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('-') || trimmed.startsWith('❌')) {
+                    if (!inList) { html += '<ul' + (isInterdit ? ' class="interdit"' : '') + '>'; inList = true; }
+                    html += '<li>' + trimmed.replace(/^-\s*/, '').replace(/^❌\s*/, '❌ ') + '</li>';
+                } else if (trimmed.startsWith('⚠️')) {
+                    if (inList) { html += '</ul>'; inList = false; }
+                    html += '<p class="important">' + trimmed + '</p>';
+                } else {
+                    if (inList) { html += '</ul>'; inList = false; }
+                    html += '<p>' + trimmed + '</p>';
+                }
+            });
+            if (inList) html += '</ul>';
+            return html;
+        }
+        
+        function renderReglement(reglement) {
+            let html = '';
+            
+            html += '<h3>🗓️ PÉRIODES ET HORAIRES D\'OUVERTURE</h3>';
+            html += formatReglementSection(reglement.horaires);
+            
+            html += '<h3>🎫 RÉSERVATION ET TARIFS</h3>';
+            html += formatReglementSection(reglement.tarifs);
+            
+            html += '<h3>🎣 MODALITÉS DE PÊCHE</h3>';
+            html += formatReglementSection(reglement.modalites);
+            
+            html += '<h3>👶 PÊCHE DES MINEURS</h3>';
+            html += formatReglementSection(reglement.mineurs);
+            
+            html += '<h3>👮 CONTRÔLES ET SANCTIONS</h3>';
+            html += formatReglementSection(reglement.controles);
+            
+            html += '<h3>⛔ INTERDICTIONS</h3>';
+            html += formatReglementSection(reglement.interdictions, true);
+            
+            html += '<h3>🗑️ GESTION DES DÉCHETS</h3>';
+            html += formatReglementSection(reglement.dechets);
+            
+            html += '<div class="contact-box"><h3>📞 CONTACTS UTILES</h3>';
+            html += formatReglementSection(reglement.contacts);
+            html += '</div>';
+            
+            document.getElementById('reglementContent').innerHTML = html;
         }
         
         function loadData() {
