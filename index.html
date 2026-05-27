@@ -754,7 +754,6 @@
                 if (isLocked) {
                     btn.className = 'day-btn verrouille';
                     btn.innerHTML = `<span class="day-name">${JOURS_SEMAINE[targetDate.getDay()]}</span><strong>${jour}</strong>`;
-                    // Alerte propre au lieu de continuer
                     btn.onclick = () => alert("⏳ Réservation impossible : le délai des 24h à l'avance (avant 21h la veille) est dépassé pour ce jour.");
                 } else {
                     btn.className = 'day-btn' + (fermeMatin.includes(jour) ? ' ferme-matin' : '');
@@ -853,7 +852,7 @@
         }
         
         // =============================================
-        // SOUMISSION (Version Épurée sans erreur heure)
+        // SOUMISSION - Validation complète avec alerte groupée
         // =============================================
         function submitReservation() {
             const nom = document.getElementById('nom').value.trim().toUpperCase();
@@ -863,20 +862,62 @@
             const ville = document.getElementById('ville').value.trim();
             const telephone = document.getElementById('telephone').value.trim();
             const email = document.getElementById('email').value.trim();
-            if (!nom) { alert('Veuillez entrer votre nom.'); return; }
-            if (!prenom) { alert('Veuillez entrer votre prénom.'); return; }
-            if (!adresse) { alert('Veuillez entrer votre adresse.'); return; }
-            if (!codePostal) { alert('Veuillez entrer votre code postal.'); return; }
-            if (!ville) { alert('Veuillez entrer votre ville.'); return; }
-            if (!telephone) { alert('Veuillez entrer votre téléphone.'); return; }
-            if (!email) { alert('Veuillez entrer votre e-mail.'); return; }
-            if (!reglementLu) { alert('Veuillez lire le règlement en entier.'); return; }
-            if (!document.getElementById('reglement').checked) { alert('Veuillez accepter le règlement.'); return; }
+
+            // Regex validation
+            const telRegex = /^(\+33|0033|0)[1-9](\s?\d{2}){4}$/;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+            const cpRegex = /^\d{5}$/;
+
+            // Collecte des erreurs
+            const erreurs = [];
+            if (!nom) erreurs.push("• Nom obligatoire");
+            if (!prenom) erreurs.push("• Prénom obligatoire");
+            if (!adresse) erreurs.push("• Adresse obligatoire");
+            if (!codePostal) erreurs.push("• Code postal obligatoire");
+            else if (!cpRegex.test(codePostal)) erreurs.push("• Code postal invalide (5 chiffres requis)");
+            if (!ville) erreurs.push("• Ville obligatoire");
+            if (!telephone) erreurs.push("• Téléphone obligatoire");
+            else if (!telRegex.test(telephone.replace(/\s/g, ''))) erreurs.push("• Téléphone invalide (ex: 06 12 34 56 78)");
+            if (!email) erreurs.push("• E-mail obligatoire");
+            else if (!emailRegex.test(email)) erreurs.push("• E-mail invalide (ex: nom@domaine.fr)");
+            if (!reglementLu) erreurs.push("• Le règlement doit être lu en entier (faites défiler jusqu'en bas)");
+            if (!document.getElementById('reglement').checked) erreurs.push("• Vous devez cocher l'acceptation du règlement");
+
+            if (erreurs.length > 0) {
+                alert("⚠️ Veuillez corriger les erreurs suivantes :\n\n" + erreurs.join("\n"));
+                return;
+            }
             
             const isBanni = bannisData.some(b => b && b.nom && b.nom.toUpperCase() === nom && b.prenom && b.prenom.toLowerCase() === prenom.toLowerCase());
             if (isBanni) { document.getElementById('modalBanni').classList.add('active'); return; }
-            
+
+            // ---- VÉRIFICATION HORS-DÉLAI AU MOMENT DE L'ENVOI ----
+            const nowCheck = new Date();
+            const todayCheck = new Date(nowCheck.getFullYear(), nowCheck.getMonth(), nowCheck.getDate());
+            const tomorrowCheck = new Date(todayCheck); tomorrowCheck.setDate(tomorrowCheck.getDate() + 1);
             const dateParts = selectedDateKey.split('-');
+            const selectedDateObj = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+            const isHorsDelai = selectedDateObj.getTime() <= todayCheck.getTime() ||
+                                (selectedDateObj.getTime() === tomorrowCheck.getTime() && nowCheck.getHours() >= 21);
+
+            if (isHorsDelai) {
+                alert("⛔ Réservation refusée : vous êtes hors délai.\nLa réservation doit être effectuée au moins 24h à l'avance, avant 21h la veille.");
+                const notifData = {
+                    type: "refus_hors_delai",
+                    statut: "REFUSÉ (HORS DÉLAI)",
+                    horodateur: nowCheck.toLocaleString('fr-FR'),
+                    nomPrenom: nom + ' ' + prenom,
+                    telephone: telephone,
+                    email: email,
+                    dateReservation: `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`,
+                    poste: "Poste " + selectedPoste,
+                    creneau: document.getElementById('creneau').value,
+                    message: "Tentative de réservation soumise hors délai"
+                };
+                fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(notifData) }).catch(() => {});
+                return;
+            }
+            // -------------------------------------------------------
             
             const btn = document.getElementById('btnSubmit');
             btn.disabled = true; btn.textContent = '⏳ Envoi en cours...';
