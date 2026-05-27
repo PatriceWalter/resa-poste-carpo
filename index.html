@@ -38,6 +38,13 @@
         .day-btn.active .day-name { color: rgba(255,255,255,0.8); }
         .day-btn.ferme-matin { border-color: #ffc107; background: #fffbeb; }
         .day-btn.ferme-matin::after { content: "⚠️ Fermé matin"; display: block; font-size: 9px; color: #b45309; margin-top: 3px; }
+        
+        /* --- NOUVEAU STYLE POUR LES JOURS VERROUILLÉS --- */
+        .day-btn.verrouille { opacity: 0.5; cursor: not-allowed; background: #f1f5f9; border-color: #cbd5e1; }
+        .day-btn.verrouille:hover { background: #f1f5f9; border-color: #cbd5e1; }
+        .day-btn.verrouille::after { content: "Délai dépassé"; display: block; font-size: 9px; color: #dc3545; font-weight: bold; margin-top: 3px; }
+        /* ------------------------------------------------ */
+
         .postes-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 20px; }
         @media (max-width: 600px) { .postes-grid { grid-template-columns: repeat(4, 1fr); } }
         .poste-btn { padding: 20px 10px; border: 2px solid #e2e8f0; border-radius: 10px; background: white; cursor: pointer; font-size: 16px; font-weight: bold; transition: all 0.3s; text-align: center; }
@@ -418,7 +425,6 @@
             contacts: "Président : René Rahm – 06.50.76.59.34\nProblème sur réservations : Patrice Walter – 06.37.70.37.31\nGarde pêche : Raymond Ledig – 06.95.24.90.84\n🌐 www.aappma-gundershoffen.fr"
         };
         
-        // Valeurs par défaut (utilisées si Firebase non disponible)
         const DEFAULT_JOURS_OUVERTURE = { 
             3: [1,7,8,14,15,21,22,28,29], 
             4: [11,12,18,19,25,26], 
@@ -431,7 +437,6 @@
         };
         const DEFAULT_FERME_MATIN = { 3: [28], 4: [25], 6: [13], 9: [19], 10: [17] };
         
-        // Variables dynamiques (chargées depuis Firebase)
         let calendrierConfig = { annee: 2026, joursOuverture: {}, fermeMatin: {} };
         let firebaseReady = false;
         
@@ -473,7 +478,6 @@
         });
         
         function setupFirebaseListeners() {
-            // Connexion status
             database.ref('.info/connected').on('value', (snap) => {
                 const badge = document.getElementById('syncBadge');
                 if (snap.val()) {
@@ -486,7 +490,6 @@
                 }
             });
             
-            // Écouter les changements du calendrier
             database.ref('calendrierConfig').on('value', (snapshot) => {
                 const data = snapshot.val();
                 if (data) {
@@ -497,7 +500,6 @@
                 renderMonths();
             });
             
-            // Écouter les réservations
             database.ref('reservations').on('value', (snap) => {
                 const data = snap.val() || {};
                 reservationsData = {};
@@ -506,7 +508,6 @@
                 });
             });
             
-            // Écouter les bannis
             database.ref('infractions/bannis').on('value', (snap) => {
                 bannisData = snap.val() || [];
                 if (!Array.isArray(bannisData)) bannisData = Object.values(bannisData);
@@ -535,7 +536,6 @@
                 document.getElementById('adminLigne4').value = cadre.ligne4 || '';
                 document.getElementById('adminLigne5').value = cadre.ligne5 || '';
                 
-                // Charger le règlement
                 const reglement = JSON.parse(localStorage.getItem('carpodromeReglement') || 'null') || DEFAULT_REGLEMENT;
                 document.getElementById('reglementHoraires').value = reglement.horaires || '';
                 document.getElementById('reglementTarifs').value = reglement.tarifs || '';
@@ -583,7 +583,6 @@
             localStorage.setItem('carpodromeCadre', JSON.stringify(cadre));
             renderInfoBox(cadre);
             
-            // Sauvegarder le règlement
             const reglement = {
                 horaires: document.getElementById('reglementHoraires').value.trim(),
                 tarifs: document.getElementById('reglementTarifs').value.trim(),
@@ -607,7 +606,6 @@
             const cadre = JSON.parse(localStorage.getItem('carpodromeCadre') || 'null') || DEFAULT_CADRE;
             renderInfoBox(cadre);
             
-            // Charger le règlement
             const reglement = JSON.parse(localStorage.getItem('carpodromeReglement') || 'null') || DEFAULT_REGLEMENT;
             renderReglement(reglement);
         }
@@ -648,32 +646,23 @@
         
         function renderReglement(reglement) {
             let html = '';
-            
             html += '<h3>🗓️ PÉRIODES ET HORAIRES D\'OUVERTURE</h3>';
             html += formatReglementSection(reglement.horaires);
-            
             html += '<h3>🎫 RÉSERVATION ET TARIFS</h3>';
             html += formatReglementSection(reglement.tarifs);
-            
             html += '<h3>🎣 MODALITÉS DE PÊCHE</h3>';
             html += formatReglementSection(reglement.modalites);
-            
             html += '<h3>👶 PÊCHE DES MINEURS</h3>';
             html += formatReglementSection(reglement.mineurs);
-            
             html += '<h3>👮 CONTRÔLES ET SANCTIONS</h3>';
             html += formatReglementSection(reglement.controles);
-            
             html += '<h3>⛔ INTERDICTIONS</h3>';
             html += formatReglementSection(reglement.interdictions, true);
-            
             html += '<h3>🗑️ GESTION DES DÉCHETS</h3>';
             html += formatReglementSection(reglement.dechets);
-            
             html += '<div class="contact-box"><h3>📞 CONTACTS UTILES</h3>';
             html += formatReglementSection(reglement.contacts);
             html += '</div>';
-            
             document.getElementById('reglementContent').innerHTML = html;
         }
         
@@ -703,7 +692,7 @@
         }
         
         // =============================================
-        // ÉTAPE 1 - MOIS ET JOURS (DYNAMIQUE)
+        // ÉTAPE 1 - MOIS ET JOURS (DYNAMIQUE) AVEC BLOCAGE
         // =============================================
         function renderMonths() {
             const container = document.getElementById('monthSelector');
@@ -738,13 +727,41 @@
             const jours = getJoursOuverture()[moisNum] || [];
             const fermeMatin = getFermeMatin()[moisNum] || [];
             const annee = getAnnee();
+
+            // Variables pour le calcul des dates et heures
+            const now = new Date();
+            const currentHour = now.getHours();
+            // On se place à minuit aujourd'hui pour comparer facilement
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
             
             jours.forEach(jour => {
-                const date = new Date(annee, monthIndex, jour);
+                const targetDate = new Date(annee, monthIndex, jour);
                 const btn = document.createElement('div');
-                btn.className = 'day-btn' + (fermeMatin.includes(jour) ? ' ferme-matin' : '');
-                btn.innerHTML = `<span class="day-name">${JOURS_SEMAINE[date.getDay()]}</span><strong>${jour}</strong>`;
-                btn.onclick = () => selectDay(jour, monthIndex);
+                
+                let isLocked = false;
+                
+                // RÈGLE 1 : C'est pour aujourd'hui ou dans le passé ? -> VERROUILLÉ
+                if (targetDate.getTime() <= today.getTime()) {
+                    isLocked = true;
+                } 
+                // RÈGLE 2 : C'est pour demain, MAIS il est 21h ou plus ? -> VERROUILLÉ
+                else if (targetDate.getTime() === tomorrow.getTime() && currentHour >= 21) {
+                    isLocked = true;
+                }
+
+                if (isLocked) {
+                    btn.className = 'day-btn verrouille';
+                    btn.innerHTML = `<span class="day-name">${JOURS_SEMAINE[targetDate.getDay()]}</span><strong>${jour}</strong>`;
+                    // Alerte propre au lieu de continuer
+                    btn.onclick = () => alert("⏳ Réservation impossible : le délai des 24h à l'avance (avant 21h la veille) est dépassé pour ce jour.");
+                } else {
+                    btn.className = 'day-btn' + (fermeMatin.includes(jour) ? ' ferme-matin' : '');
+                    btn.innerHTML = `<span class="day-name">${JOURS_SEMAINE[targetDate.getDay()]}</span><strong>${jour}</strong>`;
+                    btn.onclick = () => selectDay(jour, monthIndex);
+                }
+
                 container.appendChild(btn);
             });
         }
@@ -769,7 +786,6 @@
             document.getElementById('loadingPostes').classList.remove('hidden');
             document.getElementById('postesContainer').classList.add('hidden');
             
-            // Petit délai pour laisser Firebase se synchroniser
             setTimeout(() => {
                 renderPostes();
             }, 500);
@@ -837,7 +853,7 @@
         }
         
         // =============================================
-        // SOUMISSION
+        // SOUMISSION (Version Épurée sans erreur heure)
         // =============================================
         function submitReservation() {
             const nom = document.getElementById('nom').value.trim().toUpperCase();
@@ -857,13 +873,14 @@
             if (!reglementLu) { alert('Veuillez lire le règlement en entier.'); return; }
             if (!document.getElementById('reglement').checked) { alert('Veuillez accepter le règlement.'); return; }
             
-            // Vérifier si banni
             const isBanni = bannisData.some(b => b && b.nom && b.nom.toUpperCase() === nom && b.prenom && b.prenom.toLowerCase() === prenom.toLowerCase());
             if (isBanni) { document.getElementById('modalBanni').classList.add('active'); return; }
             
+            const dateParts = selectedDateKey.split('-');
+            
             const btn = document.getElementById('btnSubmit');
             btn.disabled = true; btn.textContent = '⏳ Envoi en cours...';
-            const dateParts = selectedDateKey.split('-');
+            
             const data = { 
                 type: "reservation", 
                 horodateur: new Date().toLocaleString('fr-FR'), 
