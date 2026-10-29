@@ -164,18 +164,26 @@
                 <div class="postes-grid" id="postesGrid"></div>
                 <div class="form-group">
                     <label>Créneau <span class="required">*</span></label>
-                    <select id="creneau" required>
+                    <select id="creneau" required onchange="invaliderRecapitulatif()">
                         <option value="">-- Sélectionnez un créneau --</option>
                         <option value="Le matin">🌅 Le matin</option>
                         <option value="L'après midi">☀️ L'après midi</option>
                         <option value="La journée">📅 La journée</option>
                     </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="modePecheGroup">
                     <label>Mode de pêche <span class="required">*</span></label>
-                    <select id="modePeche" onchange="toggleBinome()">
+                    <select id="modePeche" onchange="toggleBinome(); invaliderRecapitulatif()">
                         <option value="Individuel">👤 Individuel</option>
                         <option value="Américaine">👥 Américaine (binôme)</option>
+                    </select>
+                </div>
+                <div class="form-group" id="techniquePecheGroup">
+                    <label for="techniquePeche">Technique de pêche utilisée <span class="required">*</span></label>
+                    <select id="techniquePeche" required onchange="invaliderRecapitulatif()">
+                        <option value="">-- Sélectionnez une technique --</option>
+                        <option value="Feeder">Feeder</option>
+                        <option value="Emmanchement">Emmanchement</option>
                     </select>
                 </div>
                 <div class="binome-zone" id="binomeZone">
@@ -267,24 +275,34 @@
                     
                     <div class="form-group">
                         <label>Ligne 1 :</label>
-                        <input type="text" id="adminLigne1" placeholder="Ex: Du 1er mars au 4 mai : Samedis, Dimanches et jours fériés">
+                        <input type="text" id="adminLigne1" placeholder="Ex: Du 1er novembre au 31 décembre 2026">
                     </div>
                     
                     <div class="form-group">
                         <label>Ligne 2 :</label>
-                        <input type="text" id="adminLigne2" placeholder="Ex: Du 5 mai au 30 octobre : Tous les jours">
+                        <input type="text" id="adminLigne2" placeholder="Ex: Réservation obligatoire avant 21h la veille">
                     </div>
                     
                     <div class="form-group">
                         <label>Ligne 3 :</label>
-                        <input type="text" id="adminLigne3" placeholder="Ex: Pêche de 8h à 19h (mars-avril et septembre-octobre)">
+                        <input type="text" id="adminLigne3" placeholder="Ex: Horaires de pêche">
                     </div>
                     
                     <div class="form-group">
                         <label>Ligne 4 :</label>
-                        <input type="text" id="adminLigne4" placeholder="Ex: Pêche de 8h à 20h (mai à août)">
+                        <input type="text" id="adminLigne4" placeholder="">
                     </div>
                     
+                    <div class="reglement-section">
+                        <h4>🎣 OPTIONS DE PÊCHE AUTORISÉES</h4>
+                        <p>Décochez les choix à retirer du formulaire. Gardez au moins un choix dans chaque groupe.</p>
+                        <div class="checkbox-group"><input type="checkbox" id="adminIndividuel"><label for="adminIndividuel">Individuel</label></div>
+                        <div class="checkbox-group"><input type="checkbox" id="adminBinome"><label for="adminBinome">Américaine (binôme)</label></div>
+                        <h4>Technique de pêche utilisée</h4>
+                        <div class="checkbox-group"><input type="checkbox" id="adminFeeder"><label for="adminFeeder">Feeder</label></div>
+                        <div class="checkbox-group"><input type="checkbox" id="adminEmmanchement"><label for="adminEmmanchement">Emmanchement</label></div>
+                        <p>Ces options sont partagées entre les visiteurs. Le texte du règlement reste modifiable dans son onglet.</p>
+                    </div>
                     <div class="form-group">
                         <label>Ligne 5 (optionnel) :</label>
                         <input type="text" id="adminLigne5" placeholder="">
@@ -407,38 +425,112 @@
         const DEFAULT_TITRE = "🎣 Carpodrome";
         const DEFAULT_CADRE = {
             titre: "📌 Horaires d'ouverture",
-            ligne1: "Du 1er mars au 4 mai : Samedis, Dimanches et jours fériés",
-            ligne2: "Du 5 mai au 30 octobre : Tous les jours",
-            ligne3: "• Pêche de 8h à 19h (mars-avril et septembre-octobre)",
-            ligne4: "• Pêche de 8h à 20h (mai à août)",
+            ligne1: "Du 1er novembre au 31 décembre 2026",
+            ligne2: "Réservation obligatoire avant 21h la veille",
+            ligne3: "Pêche de 30 minutes avant le lever du soleil à 30 minutes après le coucher du soleil",
+            ligne4: "",
             ligne5: ""
         };
-        
+
         const DEFAULT_REGLEMENT = {
-            horaires: "Les horaires de pêche : 30 minutes avant le lever du soleil → 30 minutes après le coucher\n- Sur réservation uniquement et 24h à l'avance\n- Du 1er mars au 4 mai : samedis, dimanches et jours fériés\n- Du 5 mai au 30 octobre : tous les jours\n- Pêche de 8h à 19h - Période de mars à avril et période de septembre à fin octobre\n- Pêche de 8h à 20h - Période de mai à fin août\n⚠️ L'AAPPMA peut à tout moment fermer les étangs pour cause d'événements indépendants de notre volonté",
-            tarifs: "- Carte journalière : 10 € / Titulaires de la carte annuelle : 5 €\n- Carte demi-journée : 6 € / Titulaires de la carte annuelle : 3 €\n- Jours d'événements : pêche payante pour tous (10 €)\n- Réservation obligatoire 24h avant via formulaire en ligne\n⚠️ Il est impératif que chaque pêcheur dispose de la somme exacte pour l'achat d'une carte.",
-            modalites: "- Pêche No Kill obligatoire\n- Canne au coup uniquement, longueur max : 13 m\n- 1 ligne par pêcheur\n- Max 2 pêcheurs par poste\n- Pêche sous la canne, dans la zone du poste réservé\n- Amorçage : uniquement à la coupelle ou fronde\n- Matériel obligatoire : bassine ou tapis de réception épais avec rebord (5cm mini)\n- Hameçon sans ardillon, taille max nº10\n- Bourriche autorisée pour poisson blanc uniquement\n- Carpes et tanches : relâchées immédiatement\n- Esches autorisées : végétales, vers de terre, asticots\n- Pellets et baby corn autorisés\n- Graines cuites obligatoirement",
+            horaires: "- Du 1er novembre au 31 décembre 2026\n- Horaires de pêche : 30 minutes avant le lever du soleil jusqu’à 30 minutes après le coucher du soleil\n- Sur réservation uniquement, au plus tard avant 21h la veille de la pêche\n⚠️ L'AAPPMA peut à tout moment fermer les étangs pour cause d'événements indépendants de notre volonté",
+            tarifs: "- Carte journalière : 10 € / Titulaires de la carte annuelle : 5 €\n- Carte demi-journée : 6 € / Titulaires de la carte annuelle : 3 €\n- Jours d'événements : pêche payante pour tous (10 €)\n- Réservation obligatoire via le formulaire en ligne, avant 21h la veille\n⚠️ Il est impératif que chaque pêcheur dispose de la somme exacte pour l'achat d'une carte.",
+            modalites: "Règles communes aux deux techniques :\nLes règles de pêche, de manipulation des poissons et les restrictions d'appâts sont strictement les mêmes que pour la pêche à l'emmanchement.\n- Pêche No Kill obligatoire\n- Une seule canne et une seule ligne en action de pêche par pêcheur\n- Maximum 2 pêcheurs par poste, uniquement si le mode binôme est autorisé\nChoix exclusif de la technique :\n- Emmanchement ou feeder, selon les techniques autorisées lors de la réservation\n- Il est strictement interdit de pêcher avec les deux techniques en même temps\nÀ l'emmanchement :\n- Longueur maximale de la canne : 13 m\n- Pêche sous la canne, dans la zone du poste réservé\n- Amorçage uniquement à la coupelle ou à la fronde\nRègles de lancer et respect des zones :\n- Vous devez impérativement pêcher droit devant vous, dans l'axe de votre place\n- Il est interdit de lancer en travers ou d'empiéter sur la zone de pêche de votre voisin ou sur le poste d'à côté\n- Si un pêcheur se trouve sur la berge d'en face, votre limite maximale de lancer est fixée au milieu de l'étang afin de ne pas le gêner\nMatériel, manipulation des poissons et appâts :\n- Matériel obligatoire : bassine ou tapis de réception épais avec rebord (5cm mini)\n- Hameçon sans ardillon, taille max nº10\n- Bourriche autorisée pour poisson blanc uniquement\n- Carpes et tanches : relâchées immédiatement\n- Esches autorisées : végétales, vers de terre, asticots\n- Pellets et baby corn autorisés\n- Graines cuites obligatoirement",
             mineurs: "- Autorisée à partir de 12 ans, en journée uniquement\n- Moins de 12 ans : accompagnement obligatoire",
             controles: "- Carte de pêche à présenter\n- Contrôles réguliers et imprévus\nSanctions :\n- 1ère infraction → avertissement\n- 2ème infraction → exclusion temporaire ou définitive\n- Aucun remboursement en cas d'exclusion",
-            interdictions: "❌ Feux au sol et barbecues\n❌ Pêche de nuit\n❌ Camping (seuls parapluies autorisés)\n❌ Baignade, canotage\n❌ Mutilation ou marquage des poissons\n❌ Franglaise, Feeder\n❌ Graines crues\n❌ Pêche au pain\n❌ Hameçons avec ardillons\n❌ Pêche en surface",
+            interdictions: "❌ Feux au sol et barbecues\n❌ Pêche de nuit\n❌ Camping (seuls parapluies autorisés)\n❌ Baignade, canotage\n❌ Mutilation ou marquage des poissons\n❌ Franglaise\n❌ Graines crues\n❌ Pêche au pain\n❌ Hameçons avec ardillons\n❌ Pêche en surface",
             dechets: "- Ramener ses déchets\n- Amende possible : 150 €",
             contacts: "Président : René Rahm – 06.50.76.59.34\nProblème sur réservations : Patrice Walter – 06.37.70.37.31\nGarde pêche : Raymond Ledig – 06.95.24.90.84\n🌐 www.aappma-gundershoffen.fr"
         };
-        
-        const DEFAULT_JOURS_OUVERTURE = { 
-            3: [1,7,8,14,15,21,22,28,29], 
-            4: [11,12,18,19,25,26], 
-            5: [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 
-            6: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 
-            7: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 
-            8: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31], 
-            9: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30], 
-            10: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31] 
+
+        const ANCIENNES_MODALITES_CONNUES = ["- Pêche No Kill obligatoire", "- Canne au coup uniquement, longueur max : 13 m", "- 1 ligne par pêcheur", "- Max 2 pêcheurs par poste", "- Pêche sous la canne, dans la zone du poste réservé", "- Amorçage : uniquement à la coupelle ou fronde", "- Matériel obligatoire : bassine ou tapis de réception épais avec rebord (5cm mini)", "- Hameçon sans ardillon, taille max nº10", "- Bourriche autorisée pour poisson blanc uniquement", "- Carpes et tanches : relâchées immédiatement", "- Esches autorisées : végétales, vers de terre, asticots", "- Pellets et baby corn autorisés", "- Graines cuites obligatoirement", "Le règlement général reste inchangé :", "Les règles de pêche, de manipulation des poissons et les restrictions d'appâts sont strictement les mêmes que pour la pêche à l'emmanchement.", "- Une seule canne en action de pêche est autorisée par pêcheur.", "Choix exclusif de la technique :", "- C'est soit à l'emmanchement, soit au feeder. Il est strictement interdit de pêcher avec les deux techniques en même temps.", "Règles de lancer et respect des zones :", "- Vous devez impérativement pêcher droit devant vous, dans l'axe de votre place. Il est interdit de lancer en travers ou d'empiéter sur la zone de pêche de votre voisin ou sur le poste d'à côté.", "- Si un pêcheur se trouve sur la berge d'en face, votre limite maximale de lancer est fixée au milieu de l'étang afin de ne pas le gêner.", "- À l’emmanchement : longueur maximale de la canne de 13 m", "- À l’emmanchement : pêche sous la canne, dans la zone du poste réservé"];
+
+        function lireStockageJSON(cle) {
+            try { return JSON.parse(localStorage.getItem(cle) || 'null'); }
+            catch (error) { return null; }
+        }
+
+        function migrerContenu2026() {
+            const cleVersion = 'carpodromePeriodeNovDec2026';
+            if (localStorage.getItem(cleVersion) === '2') return;
+            const ancienCadre = lireStockageJSON('carpodromeCadre');
+            const ancienReglement = lireStockageJSON('carpodromeReglement');
+            // Garder une copie des textes personnalisés avant correction des rubriques concernées.
+            if (ancienCadre || ancienReglement) {
+                localStorage.setItem('carpodromeAvantCorrectionNovDec2026', JSON.stringify({ cadre: ancienCadre, reglement: ancienReglement }));
+            }
+            if (ancienCadre) {
+                const cadre = { ...ancienCadre };
+                ['ligne1', 'ligne2', 'ligne3', 'ligne4', 'ligne5'].forEach(cle => {
+                    if (/mars|avril|mai|août|septembre|octobre|novembre|décembre|24h|8h|19h|20h|lever du soleil|coucher du soleil/i.test(cadre[cle] || '')) cadre[cle] = '';
+                });
+                cadre.ligne1 = DEFAULT_CADRE.ligne1;
+                localStorage.setItem('carpodromeCadre', JSON.stringify(cadre));
+            }
+            if (ancienReglement) {
+                const reglement = { ...DEFAULT_REGLEMENT, ...ancienReglement };
+                reglement.horaires = DEFAULT_REGLEMENT.horaires;
+                const normaliserLigne = texte => texte.trim().replace(/^[-•]\s*/, '').replace(/[’‘]/g, "'").toLowerCase();
+                const lignesConnues = new Set([...ANCIENNES_MODALITES_CONNUES, ...DEFAULT_REGLEMENT.modalites.split('\n')].map(normaliserLigne));
+                const ajoutsPersonnels = (ancienReglement.modalites || '').split('\n').filter(ligne => ligne.trim() && !lignesConnues.has(normaliserLigne(ligne)));
+                reglement.modalites = DEFAULT_REGLEMENT.modalites + (ajoutsPersonnels.length ? '\nDispositions complémentaires :\n' + ajoutsPersonnels.join('\n') : '');
+                reglement.interdictions = (reglement.interdictions || '').split('\n').map(ligne => {
+                    if (!/feeder/i.test(ligne)) return ligne;
+                    if (/franglaise/i.test(ligne)) return '❌ Franglaise';
+                    return '';
+                }).filter(Boolean).join('\n');
+                reglement.tarifs = (reglement.tarifs || '').replace(/Réservation obligatoire 24h avant via formulaire en ligne/gi, 'Réservation obligatoire via le formulaire en ligne, avant 21h la veille');
+                localStorage.setItem('carpodromeReglement', JSON.stringify(reglement));
+            }
+            localStorage.setItem(cleVersion, '2');
+        }
+
+        const DEFAULT_JOURS_OUVERTURE = {
+            11: Array.from({ length: 30 }, (_, i) => i + 1),
+            12: Array.from({ length: 31 }, (_, i) => i + 1)
         };
-        const DEFAULT_FERME_MATIN = { 3: [28], 4: [25], 6: [13], 9: [19], 10: [17] };
-        
+        const DEFAULT_FERME_MATIN = {};
+
         let calendrierConfig = { annee: 2026, joursOuverture: {}, fermeMatin: {} };
         let firebaseReady = false;
+        const DEFAULT_OPTIONS_PECHE = { individuel: true, binome: true, feeder: true, emmanchement: true };
+        let optionsPeche = { ...DEFAULT_OPTIONS_PECHE };
+        let optionsPecheChargees = false;
+
+        function appliquerOptionsPeche(reset = false) {
+            const modeSelect = document.getElementById('modePeche');
+            const techniqueSelect = document.getElementById('techniquePeche');
+            const ancienMode = reset ? '' : modeSelect.value;
+            const ancienneTechnique = reset ? '' : techniqueSelect.value;
+            modeSelect.innerHTML = '';
+            if (optionsPeche.individuel) modeSelect.add(new Option('👤 Individuel', 'Individuel'));
+            if (optionsPeche.binome) modeSelect.add(new Option('👥 Américaine (binôme)', 'Américaine'));
+            if (Array.from(modeSelect.options).some(o => o.value === ancienMode)) modeSelect.value = ancienMode;
+            techniqueSelect.innerHTML = '';
+            techniqueSelect.add(new Option('-- Sélectionnez une technique --', ''));
+            if (optionsPeche.feeder) techniqueSelect.add(new Option('Feeder', 'Feeder'));
+            if (optionsPeche.emmanchement) techniqueSelect.add(new Option('Emmanchement', 'Emmanchement'));
+            if (Array.from(techniqueSelect.options).some(o => o.value === ancienneTechnique)) techniqueSelect.value = ancienneTechnique;
+            if (techniqueSelect.options.length === 2) techniqueSelect.selectedIndex = 1;
+            document.getElementById('modePecheGroup').classList.toggle('hidden', modeSelect.options.length === 1);
+            document.getElementById('techniquePecheGroup').classList.toggle('hidden', techniqueSelect.options.length === 2);
+            toggleBinome();
+            // Un changement en cours de saisie doit être relu avant confirmation.
+            if (modeSelect.value !== ancienMode || techniqueSelect.value !== ancienneTechnique) {
+                document.getElementById('etape3').classList.add('hidden');
+                document.getElementById('step3').classList.remove('active');
+            }
+        }
+
+        function erreurOptionsPeche() {
+            if (!optionsPecheChargees) return 'Les options de pêche ne sont pas encore chargées. Vérifiez votre connexion puis réessayez.';
+            const mode = document.getElementById('modePeche').value;
+            const technique = document.getElementById('techniquePeche').value;
+            if (!((mode === 'Individuel' && optionsPeche.individuel) || (mode === 'Américaine' && optionsPeche.binome))) return 'Veuillez sélectionner un mode de pêche autorisé.';
+            if (!((technique === 'Feeder' && optionsPeche.feeder) || (technique === 'Emmanchement' && optionsPeche.emmanchement))) return 'Veuillez sélectionner une technique de pêche autorisée.';
+            if (mode === 'Américaine' && !document.getElementById('binomeNom').value.trim()) return 'Veuillez entrer le nom du binôme.';
+            return '';
+        }
         
         const MOIS_NOMS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
         const JOURS_SEMAINE = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
@@ -450,21 +542,23 @@
         // FONCTIONS CALENDRIER DYNAMIQUE
         // =============================================
         function getJoursOuverture() {
-            return calendrierConfig.joursOuverture && Object.keys(calendrierConfig.joursOuverture).length > 0 
-                ? calendrierConfig.joursOuverture 
-                : DEFAULT_JOURS_OUVERTURE;
+            // Cette édition couvre uniquement novembre et décembre 2026.
+            // Les fermetures déjà configurées pour ces mois restent prioritaires.
+            const jours = calendrierConfig.annee === 2026 ? (calendrierConfig.joursOuverture || {}) : {};
+            return {
+                11: Array.isArray(jours[11]) ? jours[11] : DEFAULT_JOURS_OUVERTURE[11],
+                12: Array.isArray(jours[12]) ? jours[12] : DEFAULT_JOURS_OUVERTURE[12]
+            };
         }
-        
+
         function getFermeMatin() {
-            return calendrierConfig.fermeMatin && Object.keys(calendrierConfig.fermeMatin).length > 0 
-                ? calendrierConfig.fermeMatin 
-                : DEFAULT_FERME_MATIN;
+            return calendrierConfig.annee === 2026 ? (calendrierConfig.fermeMatin || {}) : {};
         }
-        
+
         function getAnnee() {
-            return calendrierConfig.annee || 2026;
+            return 2026;
         }
-        
+
         // =============================================
         // INITIALISATION
         // =============================================
@@ -478,6 +572,14 @@
         });
         
         function setupFirebaseListeners() {
+            database.ref('optionsPeche').on('value', (snapshot) => {
+                optionsPeche = { ...DEFAULT_OPTIONS_PECHE, ...(snapshot.val() || {}) };
+                optionsPecheChargees = true;
+                appliquerOptionsPeche();
+            }, () => {
+                optionsPecheChargees = false;
+                alert('Impossible de charger les options de pêche. Vérifiez votre connexion et les droits Firebase du chemin optionsPeche.');
+            });
             database.ref('.info/connected').on('value', (snap) => {
                 const badge = document.getElementById('syncBadge');
                 if (snap.val()) {
@@ -528,7 +630,7 @@
             if (document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
                 closeModal('modalPassword');
                 document.getElementById('adminTitre').value = localStorage.getItem('carpodromeTitre') || DEFAULT_TITRE;
-                const cadre = JSON.parse(localStorage.getItem('carpodromeCadre') || 'null') || DEFAULT_CADRE;
+                const cadre = lireStockageJSON('carpodromeCadre') || DEFAULT_CADRE;
                 document.getElementById('adminCadreTitre').value = cadre.titre || '';
                 document.getElementById('adminLigne1').value = cadre.ligne1 || '';
                 document.getElementById('adminLigne2').value = cadre.ligne2 || '';
@@ -536,7 +638,7 @@
                 document.getElementById('adminLigne4').value = cadre.ligne4 || '';
                 document.getElementById('adminLigne5').value = cadre.ligne5 || '';
                 
-                const reglement = JSON.parse(localStorage.getItem('carpodromeReglement') || 'null') || DEFAULT_REGLEMENT;
+                const reglement = lireStockageJSON('carpodromeReglement') || DEFAULT_REGLEMENT;
                 document.getElementById('reglementHoraires').value = reglement.horaires || '';
                 document.getElementById('reglementTarifs').value = reglement.tarifs || '';
                 document.getElementById('reglementModalites').value = reglement.modalites || '';
@@ -546,6 +648,10 @@
                 document.getElementById('reglementDechets').value = reglement.dechets || '';
                 document.getElementById('reglementContacts').value = reglement.contacts || '';
                 
+                document.getElementById('adminIndividuel').checked = optionsPeche.individuel;
+                document.getElementById('adminBinome').checked = optionsPeche.binome;
+                document.getElementById('adminFeeder').checked = optionsPeche.feeder;
+                document.getElementById('adminEmmanchement').checked = optionsPeche.emmanchement;
                 document.getElementById('modalAdmin').classList.add('active');
             } else {
                 document.getElementById('passwordError').style.display = 'block';
@@ -567,7 +673,26 @@
             }
         }
         
-        function saveAdminContent() {
+        async function saveAdminContent() {
+            const nouvellesOptions = {
+                individuel: document.getElementById('adminIndividuel').checked,
+                binome: document.getElementById('adminBinome').checked,
+                feeder: document.getElementById('adminFeeder').checked,
+                emmanchement: document.getElementById('adminEmmanchement').checked
+            };
+            if (!nouvellesOptions.individuel && !nouvellesOptions.binome) { alert('Gardez au moins un mode : Individuel ou Binôme.'); return; }
+            if (!nouvellesOptions.feeder && !nouvellesOptions.emmanchement) { alert('Gardez au moins une technique : Feeder ou Emmanchement.'); return; }
+            if (Object.keys(nouvellesOptions).some(cle => nouvellesOptions[cle] !== optionsPeche[cle])) {
+                try {
+                    await database.ref('optionsPeche').update(nouvellesOptions);
+                    optionsPeche = nouvellesOptions;
+                    optionsPecheChargees = true;
+                    appliquerOptionsPeche();
+                } catch (error) {
+                    alert('Les options de pêche n’ont pas été enregistrées. Vérifiez votre connexion et les droits Firebase du chemin optionsPeche.');
+                    return;
+                }
+            }
             const titre = document.getElementById('adminTitre').value.trim() || DEFAULT_TITRE;
             localStorage.setItem('carpodromeTitre', titre);
             document.getElementById('pageTitre').textContent = titre;
@@ -601,12 +726,13 @@
         }
         
         function loadInfoBoxContent() {
+            migrerContenu2026();
             const titre = localStorage.getItem('carpodromeTitre') || DEFAULT_TITRE;
             document.getElementById('pageTitre').textContent = titre;
-            const cadre = JSON.parse(localStorage.getItem('carpodromeCadre') || 'null') || DEFAULT_CADRE;
+            const cadre = lireStockageJSON('carpodromeCadre') || DEFAULT_CADRE;
             renderInfoBox(cadre);
             
-            const reglement = JSON.parse(localStorage.getItem('carpodromeReglement') || 'null') || DEFAULT_REGLEMENT;
+            const reglement = lireStockageJSON('carpodromeReglement') || DEFAULT_REGLEMENT;
             renderReglement(reglement);
         }
         
@@ -713,7 +839,10 @@
         }
         
         function selectMonth(index, nom) {
-            selectedMonth = index; selectedDay = null; selectedPoste = null;
+            selectedMonth = index; selectedDay = null; selectedPoste = null; selectedDateKey = null;
+            document.getElementById('etape2').classList.add('hidden');
+            document.getElementById('step2').classList.remove('active');
+            invaliderRecapitulatif();
             document.querySelectorAll('.month-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             document.getElementById('daysContainer').classList.remove('hidden');
@@ -754,7 +883,7 @@
                 if (isLocked) {
                     btn.className = 'day-btn verrouille';
                     btn.innerHTML = `<span class="day-name">${JOURS_SEMAINE[targetDate.getDay()]}</span><strong>${jour}</strong>`;
-                    btn.onclick = () => alert("⏳ Réservation impossible : le délai des 24h à l'avance (avant 21h la veille) est dépassé pour ce jour.");
+                    btn.onclick = () => alert("⏳ Réservation impossible : le délai de réservation avant 21h la veille est dépassé pour ce jour.");
                 } else {
                     btn.className = 'day-btn' + (fermeMatin.includes(jour) ? ' ferme-matin' : '');
                     btn.innerHTML = `<span class="day-name">${JOURS_SEMAINE[targetDate.getDay()]}</span><strong>${jour}</strong>`;
@@ -767,6 +896,7 @@
         
         function selectDay(jour, monthIndex) {
             selectedDay = jour; selectedPoste = null;
+            invaliderRecapitulatif();
             const annee = getAnnee();
             const moisNum = monthIndex + 1;
             selectedDateKey = `${annee}-${String(moisNum).padStart(2, '0')}-${String(jour).padStart(2, '0')}`;
@@ -826,10 +956,16 @@
         
         function selectPoste(num) {
             selectedPoste = num;
+            invaliderRecapitulatif();
             document.querySelectorAll('.poste-btn').forEach(btn => btn.classList.remove('active'));
             event.target.closest('.poste-btn').classList.add('active');
         }
         
+        function invaliderRecapitulatif() {
+            document.getElementById('etape3').classList.add('hidden');
+            document.getElementById('step3').classList.remove('active');
+        }
+
         function toggleBinome() {
             document.getElementById('binomeZone').classList.toggle('visible', document.getElementById('modePeche').value === 'Américaine');
         }
@@ -838,6 +974,8 @@
         // ÉTAPE 3 - INFOS
         // =============================================
         function goToStep3() {
+            const erreurPeche = erreurOptionsPeche();
+            if (erreurPeche) { alert(erreurPeche); return; }
             if (!selectedPoste) { alert('Veuillez sélectionner un poste.'); return; }
             const creneau = document.getElementById('creneau').value;
             if (!creneau) { alert('Veuillez sélectionner un créneau.'); return; }
@@ -845,6 +983,7 @@
             if (mode === 'Américaine' && !document.getElementById('binomeNom').value.trim()) { alert('Veuillez entrer le nom du binôme.'); return; }
             let html = `<h4>📋 Récapitulatif de votre réservation</h4><p>📅 Date : <strong>${selectedDateFull}</strong></p><p>🎣 Poste : <strong>Poste ${selectedPoste}</strong></p><p>⏰ Créneau : <strong>${creneau}</strong></p><p>👤 Mode : <strong>${mode}</strong></p>`;
             if (mode === 'Américaine') html += `<p>👥 Binôme : <strong>${document.getElementById('binomeNom').value}</strong></p>`;
+            html += `<p>🎣 Technique : <strong>${document.getElementById('techniquePeche').value}</strong></p>`;
             document.getElementById('selectionResume').innerHTML = html;
             document.getElementById('etape3').classList.remove('hidden');
             document.getElementById('step3').classList.add('active');
@@ -870,6 +1009,17 @@
 
             // Collecte des erreurs
             const erreurs = [];
+            const partiesDate = (selectedDateKey || '').split('-').map(Number);
+            const joursAutorises = getJoursOuverture()[partiesDate[1]] || [];
+            if (partiesDate[0] !== getAnnee() || !joursAutorises.includes(partiesDate[2])) erreurs.push('• Sélectionnez une date ouverte entre le 1er novembre et le 31 décembre 2026');
+            if (!selectedPoste) erreurs.push('• Sélectionnez un poste');
+            const reservationPoste = (reservationsData[selectedDateKey] || {})[selectedPoste];
+            if (reservationPoste && reservationPoste.nom) erreurs.push('• Ce poste vient d’être réservé. Choisissez un autre poste');
+            const creneauActuel = document.getElementById('creneau').value;
+            if (!["Le matin", "L'après midi", "La journée"].includes(creneauActuel)) erreurs.push('• Sélectionnez un créneau');
+            if ((getFermeMatin()[partiesDate[1]] || []).includes(partiesDate[2]) && creneauActuel !== "L'après midi") erreurs.push('• Ce jour est fermé le matin : choisissez l’après-midi');
+            const erreurPeche = erreurOptionsPeche();
+            if (erreurPeche) erreurs.push('• ' + erreurPeche);
             if (!nom) erreurs.push("• Nom obligatoire");
             if (!prenom) erreurs.push("• Prénom obligatoire");
             if (!adresse) erreurs.push("• Adresse obligatoire");
@@ -901,7 +1051,7 @@
                                 (selectedDateObj.getTime() === tomorrowCheck.getTime() && nowCheck.getHours() >= 21);
 
             if (isHorsDelai) {
-                alert("⛔ Réservation refusée : vous êtes hors délai.\nLa réservation doit être effectuée au moins 24h à l'avance, avant 21h la veille.");
+                alert("⛔ Réservation refusée : vous êtes hors délai.\nLa réservation doit être effectuée avant 21h la veille.");
                 const notifData = {
                     type: "refus_hors_delai",
                     statut: "REFUSÉ (HORS DÉLAI)",
@@ -934,7 +1084,8 @@
                 dateReservation: `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`, 
                 poste: "Poste " + selectedPoste, 
                 creneau: document.getElementById('creneau').value, 
-                mode: document.getElementById('modePeche').value, 
+                mode: document.getElementById('modePeche').value,
+                techniquePeche: document.getElementById('techniquePeche').value, 
                 binome: document.getElementById('modePeche').value === 'Américaine' ? document.getElementById('binomeNom').value.trim() : '', 
                 reglement: "Oui" 
             };
@@ -959,7 +1110,7 @@
             document.getElementById('creneau').innerHTML = `<option value="">-- Sélectionnez un créneau --</option><option value="Le matin">🌅 Le matin</option><option value="L'après midi">☀️ L'après midi</option><option value="La journée">📅 La journée</option>`;
             document.getElementById('modePeche').value = 'Individuel';
             document.getElementById('binomeNom').value = '';
-            document.getElementById('binomeZone').classList.remove('visible');
+            appliquerOptionsPeche(true);
             ['nom','prenom','adresse','codePostal','ville','telephone','email'].forEach(id => document.getElementById(id).value = '');
             document.getElementById('reglement').checked = false;
             document.getElementById('reglement').disabled = true;
