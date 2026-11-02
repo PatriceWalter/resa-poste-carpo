@@ -420,7 +420,7 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
         
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz1nxuYqTlznMdKxmZ8vv9rM79wR3pGessGBDMYz8GxjkDACVtRDwFee9DpaXIIp9dCow/exec";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzrOf6bgUI-Nz2EmVnW67P_ws7fefqPPeJr-8XkOH9P8Ti6fYWuRt8SVdwoZ9CZfYqhbg/exec";
         const ADMIN_PASSWORD = "admincarpodrome";
         const DEFAULT_TITRE = "🎣 Carpodrome";
         const DEFAULT_CADRE = {
@@ -993,7 +993,29 @@
         // =============================================
         // SOUMISSION - Validation complète avec alerte groupée
         // =============================================
+        async function envoyerReservationConfirmee(data) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 45000);
+            try {
+                const reponse = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    credentials: 'omit',
+                    headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+                    body: JSON.stringify(data),
+                    signal: controller.signal
+                });
+                if (!reponse.ok) throw new Error('Le serveur de réservation a répondu avec une erreur (' + reponse.status + ').');
+                const resultat = await reponse.json();
+                if (!resultat || resultat.status !== 'success') throw new Error('Le serveur n’a pas confirmé l’enregistrement. Contactez l’association.');
+                return resultat;
+            } finally {
+                clearTimeout(timer);
+            }
+        }
+
         function submitReservation() {
+            if (document.getElementById('btnSubmit').dataset.envoi === 'oui') return;
             const nom = document.getElementById('nom').value.trim().toUpperCase();
             const prenom = document.getElementById('prenom').value.trim();
             const adresse = document.getElementById('adresse').value.trim();
@@ -1070,6 +1092,7 @@
             // -------------------------------------------------------
             
             const btn = document.getElementById('btnSubmit');
+            btn.dataset.envoi = 'oui';
             btn.disabled = true; btn.textContent = '⏳ Envoi en cours...';
             
             const data = { 
@@ -1090,16 +1113,25 @@
                 reglement: "Oui" 
             };
             
-            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
-            .then(() => { document.getElementById('modalSuccess').classList.add('active'); })
-            .catch(error => { alert('Erreur: ' + error.message); })
-            .finally(() => { btn.disabled = false; btn.textContent = '✅ Confirmer ma réservation'; });
+            envoyerReservationConfirmee(data)
+            .then(() => {
+                document.getElementById('modalSuccess').classList.add('active');
+                btn.textContent = '✅ Réservation enregistrée';
+            })
+            .catch(error => {
+                btn.dataset.envoi = '';
+                btn.disabled = false;
+                btn.textContent = '✅ Confirmer ma réservation';
+                alert('⚠️ Enregistrement non confirmé. Votre réservation ne doit pas être considérée comme acquise. Contactez l’association avant de refaire un envoi pour éviter un doublon.\n\n' + (error.name === 'AbortError' ? 'Le serveur ne répond pas dans le délai prévu.' : error.message));
+            });
         }
         
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         
         function resetForm() {
             closeModal('modalSuccess');
+            document.getElementById('btnSubmit').dataset.envoi = '';
+            document.getElementById('btnSubmit').textContent = '✅ Confirmer ma réservation';
             selectedMonth = null; selectedDay = null; selectedPoste = null; selectedDateKey = null; selectedDateFull = null; reglementLu = false;
             document.querySelectorAll('.month-btn, .day-btn, .poste-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('daysContainer').classList.add('hidden');
